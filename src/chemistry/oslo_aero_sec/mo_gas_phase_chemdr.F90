@@ -64,19 +64,19 @@ contains
     use physics_buffer,    only : pbuf_get_index
     use rate_diags,        only : rate_diags_init
     use cam_abortutils,    only : endrun
-    !smb++sectional
+    !smb++ sectional
     use aero_sectional,     only : secSpecNames, secNrSpec, secNrBins
-    !smb--sectional
+    !smb-- sectional
     implicit none
 
     character(len=3) :: string
     integer          :: n, m, err, ii
     logical :: history_cesm_forcing
     character(len=16) :: unitstr
-    !smb++sectional
+    !smb++ sectional
     integer  ::i,j
     character(len=20) ::field_name
-    !smb--sectional
+    !smb-- sectional
 
     !-----------------------------------------------------------------------
     logical :: history_scwaccm_forcing

@@ -11,10 +11,9 @@ module condtend
    use physconst,    only: rair, gravit, pi
    use commondefinitions
    use chem_mods, only: adv_mass !molecular weights from mozart
-   !smb++sectional
-   !use aero_sectional,    only: aerosect_register,secNrBins, secMeanD !smb:sectional
+   !smb++ sectional
    use aero_sectional,    only: secNrSpec,secNrBins, secMeanD !smb:sectional
-   !smb--sectional
+   !smb-- sectional
 !soa
 
    save
@@ -23,14 +22,11 @@ module condtend
    integer, parameter :: COND_VAP_H2SO4 = 1
    integer, parameter :: COND_VAP_ORG_LV = 2
    integer, parameter :: COND_VAP_ORG_SV = 3
-   !smb++sectional
-   !integer, parameter :: N_COND_VAP_sec = 2   ! only h2so4 and SOA_LV allowed to condense onto sectional scheme
-   !smb--sectional
 
    real(r8), public, dimension(0:nmodes,N_COND_VAP)  :: normalizedCondensationSink       ![m3/#/s] condensation sink per particle in mode i
-   !smb++sectional
+   !smb++ sectional
    real(r8), public, dimension(secNrSpec, secNrBins)  :: normalizedCondensationSink_sec       ![m3/#/s] condensation sink per particle in mode i
-   !smb--sectional
+   !smb-- sectional
 
    integer, private, dimension(gas_pcnst) :: lifeCycleReceiver                ! [-] array of transformation of life cycle tracers
    real(r8), private, dimension(0:nmodes,N_COND_VAP) :: stickingCoefficient              ! [-] stickingCoefficient for H2SO4 on a mode
@@ -114,9 +110,9 @@ contains
       real(r8), parameter :: cm2Tom2 = 1.e-4_r8       !convert from cm2 ==> m2
 
       real(r8), dimension(0:100,0:nmodes,N_COND_VAP) :: DiffusionCoefficient   ! [m2/s] Diffusion coefficient
-      !smb++sectional
+      !smb++ sectional
       real(r8), dimension(secNrSpec, secNrBins) :: DiffusionCoefficientSec   ! [m2/s] Diffusion coefficient
-      !smb--sectional
+      !smb-- sectional
       character(len=fieldname_len+3) :: fieldname_donor
       character(len=fieldname_len+3) :: fieldname_receiver
       character(128)                 :: long_name
@@ -126,9 +122,9 @@ contains
       integer                        :: iChem             !counter for chemical species
       integer                        :: mode_index_donor  !index for mode
       integer                        :: iMode             !Counter for mode
-      !smb++sectional
+      !smb++ sectional
       integer                        :: iBin             !Counter for bin
-      !smb--sectional
+      !smb-- sectional
       integer                        :: tracerIndex       !counter for chem. spec
      
       logical                        :: history_aerosol
@@ -142,7 +138,9 @@ contains
       real(r8) :: rho   ![kg/m3] density of component in question
       real(r8) :: radmol ![m] radius molecule
       real(r8), dimension(N_COND_VAP) :: th     !thermal velocity
+      !smb++ sectional
       integer                         :: indVol, indBin !smb
+      !smb-- sectional
 
       !Couple the condenseable vapours to chemical species for properties and indexes
       cond_vap_map(COND_VAP_H2SO4) = chemistryIndex(l_h2so4)
@@ -200,8 +198,8 @@ contains
             enddo
          end do !receiver modes
       end do
-      !smb++sectional
-      do indVol = 1,secNrSpec
+      !smb++ sectional
+      do indVol = 1,secNrSpec ! loop through species
          do indBin = 1, secNrBins         !all modes receive condensation
             DiffusionCoefficientSec(indVol, indBin) = diff( indVol)  &    !original diffusion coefficient
                /(                                    &       
@@ -210,7 +208,7 @@ contains
                  )
          enddo
        enddo
-      !smb--sectional
+      !smb-- sectional
 
       normalizedCondensationSink(:,:) = 0.0_r8
       !Find sink per particle in mode "imode"
@@ -228,7 +226,7 @@ contains
             end do
          end do
       end do
-      !smb++sectional
+      !smb++ sectional
       normalizedCondensationSink_sec(:,:) =0.0_r8  
       do indVol =1, secNrSpec
          do indBin = 1, secNrBins
@@ -236,11 +234,10 @@ contains
                                                 + 4.0_r8*pi                                    &
                                                 * DiffusionCoefficientSec( indVol, indBin) &    ![m2/s] diffusion coefficient
                                                 * secMeanD(indBin)*0.5_r8                    ![m] radius of bin
-               !WRITE(*,*) 'SMB: normalized condensation sink sec:', normalizedCondensationSink_sec(iBin, cond_vap_idx)
         end do
       end do
 
-      !smb--sectional
+      !smb-- sectional
 
       !Initialize output
       call phys_getopts(history_aerosol_out = history_aerosol)
@@ -300,6 +297,7 @@ contains
        WRITE(fieldname_receiver,'(A,I2.2,A)') 'nrSEC', imode,'_diff'
        call addfld(trim(fieldname_receiver),  (/'lev'/), 'A','nr/m3','difference in sectional scheme before and after condensation')
     end do
+    !smb-- sectional
 
 
 

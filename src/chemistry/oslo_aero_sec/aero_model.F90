@@ -168,11 +168,14 @@ contains
   subroutine aero_model_register()
     use aerosoldef, only: aero_register
     use condtend, only: registerCondensation
-    use aero_sectional, only: aerosect_register, aerosect_init  !smb++sectional
-
+    !smb++ sectional
+    use aero_sectional, only: aerosect_register, aerosect_init  !
+    !smb-- sectional
 
     call aero_register()
+    !smb++ sectional
     call aerosect_register() !smb++sectional
+    !smb-- sectional
     call registerCondensation()
 
   end subroutine aero_model_register
@@ -202,8 +205,6 @@ contains
     use modal_aero_deposition , only: modal_aero_deposition_init
     !smb++sectional
     use aero_sectional,     only : secSpecNames, secNrSpec, secNrBins
-    !smb--sectional
-    !smb++sectional
     integer  ::i,j
     !smb--sectional
 
@@ -324,21 +325,23 @@ contains
     call addfld ('GRSOA',       (/'lev'/),  'A',        'nm/hour',  'Growth rate SOA')
     call addfld ('GR',          (/'lev'/),  'A',        'nm/hour',  'Growth rate, H2SO4+SOA')
     call addfld ('NUCLSOA',     (/'lev'/),  'A',        'kg/kg',    'SOA nucleate')
+    call addfld ('ORGNUCL',     (/'lev'/),  'A',        'kg/kg',    'Organic gas available for nucleation')
+      !smb++ sectional
     call addfld ('NUCLRATE_pbl',(/'lev'/),  'A',        '#/cm3/s',  'Nucleation rate, pbl')
     call addfld ('FORMRATE_pbl',(/'lev'/),  'A',        '#/cm3/s',  'Formation rate of 12nm particles,pbl')
-    call addfld ('ORGNUCL',     (/'lev'/),  'A',        'kg/kg',    'Organic gas available for nucleation')
     call addfld ('H2SO4NUCL',   (/'lev'/),  'A',        'kg/kg',    'H2SO4 gas available for nucleation')  ! smb: added for diagnosis of nucleation code
+      ! trace mass leaving sectional scheme for introduction to OsloAero:
     call addfld('leaveSecH2SO4',(/'lev'/),  'A',        'kg/kg',    'H2SO4 leaving sectional scheme for SO4_NA')  ! smb: added for diagnosis of nucleation code
     call addfld ('leaveSecSOA', (/'lev'/),  'A',        'kg/kg',    'SOA leaving sectional scheme for SO4_NA')  ! smb: added for diagnosis of nucleation code
-    call addfld ('OH_pre_diur', (/'lev'/),  'A',        'molec/cm3?','OH concentration pre diurnal variation')  ! smb: added for diagnosis of nucleation code
-    call addfld ('OH_post_diur',(/'lev'/),  'A',        'molec/cm3?','OH concentration post diurnal variation')  ! smb: added for diagnosis of nucleation code
-    do i=1,secNrBins
+    ! Add each bin, species as outfield.
+      do i=1,secNrBins
         do j=1,secNrSpec
                 WRITE(field_name,'(A,A,I2.2)') 'nr',trim(secSpecNames(j)),i
                 call addfld(trim(field_name),(/'lev'/), 'A', 'unit','number conc')
                 call add_default(trim(field_name),1,' ')
         end do
     end do
+      !smb-- sectional
 
     if(history_aerosol)then
        call add_default ('NUCLRATE', 1, ' ')
@@ -349,12 +352,11 @@ contains
        call add_default ('GR', 1, ' ')
        call add_default ('NUCLSOA', 1, ' ')
        call add_default ('ORGNUCL', 1, ' ')
+       !smb++ sectional
        call add_default ('H2SO4NUCL',   1, ' ')! smb: added for diagnosis of nucleation code
        call add_default('leaveSecH2SO4',1, ' ')! smb: added for diagnosis of nucleation code
        call add_default ('leaveSecSOA', 1, ' ')! smb: added for diagnosis of nucleation code
-       call add_default ('OH_pre_diur', 1, ' ')! smb: added for diagnosis of nucleation code
-       call add_default ('OH_post_diur',1, ' ')! smb: added for diagnosis of nucleation code
-        !SMB
+       !smb-- sectional
     end if
 
     call addfld( 'XPH_LWC',    (/ 'lev' /), 'A','kg/kg',   'pH value multiplied by lwc')
@@ -542,8 +544,10 @@ end subroutine aero_model_init
                                     vmr0, vmr, pbuf )
 
     use time_manager,          only : get_nstep
+    !smb++ sectional
     !use condtend,              only : condtend_sub
     use condtend, only: condtend_sub_super  !smb++sectional
+    !smb-- sectional
 
     use aerosoldef,            only: getCloudTracerName
     !-----------------------------------------------------------------------
@@ -758,16 +762,16 @@ end subroutine aero_model_init
     !                 pdel, delt, ncol, pblh, zm, qh2o)  !cka
     call condtend_sub_super( lchnk, mmr_tend_pcols, mmr_cond_vap_gasprod,tfld, pmid, &
             pdel, delt, ncol, pblh, zm, qh2o)  !cka
-    !smb---sectional
+    !smb-- sectional
    !coagulation
    ! OS 280415  Concentratiions in cloud water is in vmr space and as a
    ! temporary variable  (vmrcw) Coagulation between aerosol and cloud
    ! droplets moved to after vmrcw is moved into qqcw (in mmr spac)
 
    call coagtend( mmr_tend_pcols, pmid, pdel, tfld, delt_inverse, ncol, lchnk)
-    !smb++sectional
+    !smb++ sectional
     call coagtend_sec( mmr_tend_pcols, pmid, pdel, tfld, delt_inverse, ncol, lchnk)
-    !smb--sectional
+    !smb-- sectional
 
    !Convert cloud water to mmr again ==> values in buffer
    call vmr2qqcw( lchnk, vmrcw, mbar, ncol, loffset, pbuf )

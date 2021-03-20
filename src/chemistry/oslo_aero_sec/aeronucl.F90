@@ -1,6 +1,6 @@
 
 subroutine aeronucl(lchnk, ncol, t, pmid, h2ommr, h2so4pc, oxidorg, coagnuc, nuclso4, nuclorg, zm, pblht, &
-!smb++sectional
+!smb++ sectional
                 nuclrate, nuclrate_pbl_o, formrate, formrate_pbl_o,  &
                 orgnucl_o, h2so4nucl_o, grsoa_o, grh2so4_o, dt, &
                ! nuclrate, nuclrate_pbl_o,formrate, formrate_pbl_o, coagnucl_o, &
@@ -9,7 +9,7 @@ subroutine aeronucl(lchnk, ncol, t, pmid, h2ommr, h2so4pc, oxidorg, coagnuc, nuc
 
 
 
-!smb--sectional
+!smb-- sectional
 
 ! Subroutine to calculate nucleation (formation) rates of new particles
 ! At the moment, the final nucleation rate consists of
@@ -51,7 +51,6 @@ subroutine aeronucl(lchnk, ncol, t, pmid, h2ommr, h2so4pc, oxidorg, coagnuc, nuc
     !smb++sectional
     real(r8), intent(in)  :: d_form                   ! Particle size at calculated formation rate [m]a
 
-    !++SMB:
         real(r8), intent(inout)  :: nuclrate(pcols, pver)       ! Nucleation rate out
         real(r8), intent(inout)  :: nuclrate_pbl_o(pcols, pver) ! Nucleation rate out
         real(r8), intent(inout)  :: formrate(pcols, pver)        ! Nucleation rate out
@@ -63,7 +62,8 @@ subroutine aeronucl(lchnk, ncol, t, pmid, h2ommr, h2so4pc, oxidorg, coagnuc, nuc
         real(r8), intent(inout)  :: grh2so4_o(pcols, pver)         ! Nucleation rate out
         real(r8), intent(inout)  :: grsoa_o(pcols, pver)       ! Nucleation rate out
         real(r8), intent(in)  :: dt  !Number of  substeps
-    !--SMB
+    !smb-- sectional
+
 
 
 
@@ -94,9 +94,9 @@ subroutine aeronucl(lchnk, ncol, t, pmid, h2ommr, h2so4pc, oxidorg, coagnuc, nuc
     real(r8)              :: nuclsize_pbl(pcols,pver) ! Boundary layer nucleation formation size (m)
 
     real(r8)              :: orgforgrowth(pcols,pver) ! Organic vapour mass available for growth
-    !smb++sectional
+    !smb++ sectional this is now taken as input.
     !real(r8)              :: d_form                   ! Particle size at calculated formation rate [m]
-    !smb--sectional
+    !smb-- sectional
     real(r8)              :: gr(pcols,pver), grh2so4(pcols,pver), grorg(pcols,pver) !growth rates
     real(r8)              :: vmolh2so4, vmolorg       ! [m/s] molecular speed of condenseable gases
     real(r8)              :: frach2so4
@@ -129,7 +129,7 @@ subroutine aeronucl(lchnk, ncol, t, pmid, h2ommr, h2so4pc, oxidorg, coagnuc, nuc
     molmass_soa=adv_mass(id_SOA_LV)
 
     !-- Formation diameters (m). Nucleated particles are inserted to SO4(n), same size used for soa  (cka)
-    !smb++sectional
+    !smb++sectional now taken as input
     !d_form=2._r8*originalNumberMedianRadius(MODE_IDX_SO4SOA_AIT) 
     !smb--sectional
 
@@ -330,14 +330,16 @@ subroutine aeronucl(lchnk, ncol, t, pmid, h2ommr, h2so4pc, oxidorg, coagnuc, nuc
                     nuclrate_pbl(i,k)=(1.7E-6_r8)*h2so4(i,k)
 
                 else if(pbl_nucleation .EQ. 2) then
-
+                    !smb++ sectional : updated nucleation parameterization
                     !-- Paasonen et al. (2010)
                     !values from Table 3 in Paasonen et al (2010), modified version of eqn 14
                     !nuclrate_pbl(i,k)=(6.1E-7_r8)*h2so4(i,k)+(0.39E-7_r8)*orgforgrowth(i,k) !(18)
 
                     !nuclrate_pbl(i,k)=(1.1E-14_r8)*h2so4(i,k)**2+(3.2E-14_r8)*h2so4(i,k)*orgforgrowth(i,k) !(19)
                     !nuclrate_pbl(i,k)=(1.4E-14_r8)*h2so4(i,k)**2+(2.6E-14_r8)*h2so4(i,k)*orgforgrowth(i,k) + (0.037E-14_r8)*orgforgrowth(i,k)**2 ! (20)
+                    ! Riccobono 2014:
                     nuclrate_pbl(i,k)=3.27E-21_r8*h2so4(i,k)**2*orgforgrowth(i,k)
+                    !smb-- sectional
 
                 end if
 
@@ -379,7 +381,7 @@ subroutine aeronucl(lchnk, ncol, t, pmid, h2ommr, h2so4pc, oxidorg, coagnuc, nuc
             formrate_pbl(i,k)=MAX(MIN(formrate_pbl(i,k),1.E3_r8),0._r8)
 
             !   Number of mol nucleated per g air per second.
-            !smb++ use correct volumeToNumber
+            !smb++ sectional
             !nuclvolume(i,k) = (formrate_bin(i,k) + formrate_pbl(i,k)) & ![particles/cm3]
             !                *1.0e6_r8                                 & !==> [particles / m3 /]
             !                /volumeToNumber(MODE_IDX_SO4SOA_AIT)   & !==> [m3_{aer} / m3_{air} / sec]
@@ -389,12 +391,7 @@ subroutine aeronucl(lchnk, ncol, t, pmid, h2ommr, h2so4pc, oxidorg, coagnuc, nuc
                             *1.0e6_r8                                 & !==> [particles / m3 /]
                             *d_form**3*pi/6._r8 &!/volumeToNumber(MODE_IDX_SO4SOA_AIT)   & !==> [m3_{aer} / m3_{air} / sec]
                             / rhoair(i,k)                            !==> m3_{aer} / kg_{air} /sec
-            !write(*,*) 'nuclvolume:', nuclvolume(i,k)
-            !if (nuclvolume(i,k)<1.E-10_r8) then
-            !    nuclvolume(i,k)=0._r8
-            !end if
-           !smb-- 
-        !write(*,*) 'SMB: nucleation 3.6'
+           !smb-- sectional
             !Estimate how much is organic based on growth-rate
             if(gr(i,k)>1.E-10_r8) then
               frach2so4=grh2so4(i,k)/gr(i,k)
@@ -402,18 +399,16 @@ subroutine aeronucl(lchnk, ncol, t, pmid, h2ommr, h2so4pc, oxidorg, coagnuc, nuc
               frach2so4=1._r8
             end if            
 
-        !write(*,*) 'SMB: nucleation 3.7'
             ! Nucleated so4 and soa mass mixing ratio per second [kg kg-1 s-1]
             ! used density of particle phase, not of condensing gas 
             nuclso4(i,k)=rhopart(l_so4_na)*nuclvolume(i,k)*frach2so4  
             nuclorg(i,k)=rhopart(l_soa_na)*nuclvolume(i,k)*(1.0_r8-frach2so4)
 
-        !write(*,*) 'SMB: nucleation 3.8'
         end do
     end do
 
-    !write(*,*) 'SMB: nucleation 4'
     !-- Diagnostic output
+    !smb++ sectional: output not written here due to timestep
     nuclrate(:,:)=nuclrate(:,:)+(nuclrate_pbl(:,:)+nuclrate_bin(:,:))*dt
     nuclrate_pbl_o(:,:)= nuclrate_pbl_o(:,:)+ nuclrate_pbl(:,:)*dt
     formrate(:,:)=formrate(:,:)+(formrate_pbl(:,:)+formrate_bin(:,:))*dt
@@ -432,7 +427,7 @@ subroutine aeronucl(lchnk, ncol, t, pmid, h2ommr, h2so4pc, oxidorg, coagnuc, nuc
     !call outfld('GRH2SO4', grh2so4, pcols   ,lchnk) 
     !call outfld('GRSOA', grorg, pcols   ,lchnk) 
     !call outfld('GR', gr, pcols   ,lchnk) 
-
+    !smb--
 
     return
 end

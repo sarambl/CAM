@@ -8,9 +8,9 @@ module koagsub
    use shr_kind_mod,          only: r8 => shr_kind_r8
    use physconst,          only: rair, gravit
    use cam_logfile,      only : iulog
-   !smb++sectional
+   !smb++ sectional
    use aero_sectional, only: secNrBins, secNrSpec,secMeanD, rhopart_sec, secConstIndex, min_diameter
-   !smb--sectional
+   !smb-- sectional
    save
 
    real(r8), parameter :: kboltzmann = 1.3806488e-23_r8          ![m2 kg s-2 K-1]
@@ -22,17 +22,20 @@ module koagsub
 
    integer, parameter :: numberOfCoagulatingModes = 6
    integer, parameter :: numberOfCoagulationReceivers = 6
-   !++SMB
+   !smb++ npfcoag
    integer, parameter :: numberOfCoagulationReceiversNPF =  numberOfCoagulatingModes+numberOfCoagulationReceivers
-   !--SMB
+   !smb-- npfcoag
 
-   !++SMB: radius for NPF particles for coagulation calculation:
+   !smb++ sectional: radius for NPF particles for coagulation calculation
    real(r8), parameter :: rk_NPF = min_diameter/2._r8!.0e-9_r8 ![m] 5 nm
-   !++SMB: add special for new forming particles
+   !smb-- sectional
+   !smb++ npfcoag: add special for new forming particles
    real(r8), dimension(0:nmodes) :: normalizedCoagulationSinkNPF ![m3/#/s]
+   !smb-- npfcoag
+   !smb++ sectional
    real(r8), dimension(secNrBins,0:nmodes) :: normalizedCoagulationSink_sec ![m3/#/s]
    real(r8), dimension(secNrBins,secNrBins) :: normalizedCoagulationSink_autosec ![m3/#/s]
-   !--SMB
+   !smb-- sectional
    real(r8), dimension(0:nmodes,0:nmodes) :: normalizedCoagulationSink ![m3/#/s]
    real(r8), dimension(0:nmodes)          :: NCloudCoagulationSink    ![m3/#/s]
    
@@ -77,8 +80,9 @@ subroutine initializeCoagulationOutput()
 
    use ppgrid, only: pver
    use cam_history,     only: addfld, add_default, fieldname_len, horiz_only
-   !use aero_sectional, only: secNrBins, secNrSpec, secSpecNames
+    !smb++ sectional
    use aero_sectional, only: secSpecNames
+   !smb-- sectional
    implicit none
    integer :: imode
    integer :: iChem
@@ -129,7 +133,7 @@ subroutine initializeCoagulationOutput()
       end if
 
    end do
-   !++smb sectional:
+   !smb++ sectional
    do iChem = 1, secNrSpec
       do imode = 1, secNrBins
         WRITE(fieldname_donor,'(A,I2.2,A)') trim(secSpecNames(iChem)),imode,'_coagLoss'
@@ -139,6 +143,7 @@ subroutine initializeCoagulationOutput()
         end if
       end do !imod
    end do !iChem
+   !smb-- sectional
 
 
 end subroutine initializeCoagulationOutput
@@ -179,9 +184,6 @@ subroutine initializeCoagulationCoefficients(rhob,rk)
 
       use mo_constants,  only:  pi
       use const, only: normnk
-      !smb++sectional
-      !use aero_sectional, only: secNrBins, secNrSpec,secMeanD, rhopart_sec, secConstIndex
-      !smb--sectional
 
       implicit none
 
@@ -189,16 +191,20 @@ subroutine initializeCoagulationCoefficients(rhob,rk)
       real(r8), intent(in) :: rhob(0:nmodes) !density of background mode
    
       real(r8), dimension(numberOfCoagulationReceivers, numberOfCoagulatingModes, nBinsTab) :: K12 = 0.0_r8  !Coagulation coefficient (m3/s)
-      !++SMB: add for calculation on coagulation for newly forming particles 
+      !smb++ npfcoag: add for calculation on coagulation for newly forming particles
       real(r8), dimension(numberOfCoagulationReceivers + numberOfCoagulatingModes, nBinsTab) :: K12NPF = 0.0_r8  !Coagulation coefficient (m3/s)
-      real(r8), dimension(numberOfCoagulationReceivers + numberOfCoagulatingModes, secNrBins, nBinsTab) :: K12_sec = 0.0_r8  !Coagulation coefficient (m3/s)
+      !smb-- npfcoag
+      !smb++ sectional
+      real(r8), dimension(numberOfCoagulationReceivers + numberOfCoagulatingModes, secNrBins,nBinsTab) :: K12_sec = 0.0_r8  !Coagulation coefficient (m3/s)
       real(r8), dimension(secNrBins, secNrBins) :: K12_autosec = 0.0_r8  !Coagulation coefficient (m3/s)
-      !--SMB: 
+      !smb-- sectional
 
       real(r8), dimension(numberOfCoagulatingModes,nBinsTab) :: K12Cl = 0.0_r8  !Coagulation coefficient (m3/s)
 
       real(r8), dimension(nBinsTab) :: coagulationCoefficient
+      !smb++ sectional
       real(r8)                      :: coagulationCoefficient_autosec !smb++sectional
+      !smb-- sectional
       integer              :: aMode
       integer              :: modeIndex
       integer              :: modeIndexCoagulator  !Index of coagulating mode
@@ -229,7 +235,7 @@ subroutine initializeCoagulationCoefficients(rhob,rk)
 
          enddo
       end do !receiver modes
-      !++SMB: add coagulation for newly formed particles
+      !smb++ npfcoag: add coagulation for newly formed particles
       do iReceiverMode=1,numberOfCoagulatingModes+numberOfCoagulationReceivers
             modeIndexReceiver = receiverModeNPF(iReceiverMode) 
             call calculateCoagulationCoefficient(CoagulationCoefficient    & !O [m3/s] coagulation coefficient 
@@ -239,7 +245,8 @@ subroutine initializeCoagulationCoefficients(rhob,rk)
                                  , rhob(modeIndexReceiver) )!I [kg/m3] density of receiver
             K12NPF(iReceiverMode,:) = CoagulationCoefficient(:)
       end do
-      !!smb++sectional: add coagulation for newly formed particles
+      !smb-- npfcoag
+      !smb++ sectional: add coagulation for newly formed particles
       do iReceiverMode = 1,numberOfCoagulatingModes+numberOfCoagulationReceivers
       do iCoagulatingMode = 1, secNrBins
             modeIndexReceiver = receiverModeNPF(iReceiverMode) 
@@ -251,8 +258,8 @@ subroutine initializeCoagulationCoefficients(rhob,rk)
             K12_sec(iReceiverMode, iCoagulatingMode,:) = CoagulationCoefficient(:)
       end do
       end do
-      !smb--sectional: add coagulation for newly formed particles
-      !smb++sectional: add autocoagulation for newly formed particles
+      !smb-- sectional: add coagulation for newly formed particles
+      !smb++ sectional: add autocoagulation for newly formed particles
       do iReceiverMode = 1,secNrBins!numberOfCoagulatingModes+numberOfCoagulationReceivers
       do iCoagulatingMode = 1, secNrBins
             ! modeIndexReceiver = receiverModeNPF(iReceiverMode) 
@@ -265,7 +272,7 @@ subroutine initializeCoagulationCoefficients(rhob,rk)
             K12_autosec(iReceiverMode, iCoagulatingMode) = coagulationCoefficient_autosec
       end do
       end do
-      !smb--
+      !smb-- sectional
 
 ! Onl one receivermode for cloud coagulation (water)
       do iCoagulatingMode = 1,numberOfCoagulatingModes
@@ -292,12 +299,12 @@ subroutine initializeCoagulationCoefficients(rhob,rk)
       !We only need to rember for 1 [#/m3] of each receiver mode
       !and then later scale by number concentration in receiver modes
       normalizedCoagulationSink(:,:) = 0.0_r8
-      !++SMB: add for coagulation of newly forming particles
+      !smb++ npfcoag_ add for coagulation of newly forming particles
       normalizedCoagulationSinkNPF(:) = 0.0_r8
-      !--SMB
-      !smb++sectional
+      !smb-- npfcoag:
+      !smb++ sectional
       normalizedCoagulationSink_sec(:,:) = 0.0_r8
-      !smb--sectional
+      !smb-- sectional
 
       do iCoagulatingMode = 1, numberOfCoagulatingModes
 
@@ -319,8 +326,8 @@ subroutine initializeCoagulationCoefficients(rhob,rk)
          end do    !receiver modes
       end do       !coagulator
 
-     !++SMB
-         !Sum the loss for all possible receivers
+      !smb++ npfcoag
+      !Sum the loss for all possible receivers
      do iReceiverMode = 1, numberOfCoagulationReceivers+numberOfCoagulatingModes
 
             modeIndexReceiver = receiverModeNPF(iReceiverMode) !Index of receiver mode
@@ -333,45 +340,36 @@ subroutine initializeCoagulationCoefficients(rhob,rk)
                    * K12NPF(iReceiverMode,  nsiz)                  !Koagulation coefficient (m3/#/s)
             end do !Look up table size
      end do    !receiver modes
- 
-      !smb++sectional
-         !autosectional
+      !smb-- npfcoag
+
+      !smb++ sectional: coagulation between bins in sectional scheem
      do iCoagulatingMode = 1, secNrBins
      do iReceiverMode = 1, secNrBins!numberOfCoagulationReceivers+numberOfCoagulatingModes
-
                ! For sectional scheme, normalized coagulation sink is simply Kij
                normalizedCoagulationSink_autosec(iCoagulatingMode, iReceiverMode)      =   &   ![m3/#/s]
                     K12_autosec(iReceiverMode,iCoagulatingMode)                  !Koagulation coefficient (m3/#/s)
      end do    !receiver modes
      end do   
  
-     ! smb--sectional
+     ! smb-- sectional
  
-     ! --SMB
-     ! smb++sectional
+     ! smb++ sectional
      ! Sum the loss for all possible receivers
      do iCoagulatingMode = 1, secNrBins
      do iReceiverMode = 1, numberOfCoagulationReceivers+numberOfCoagulatingModes
 
             modeIndexReceiver = receiverModeNPF(iReceiverMode) !Index of receiver mode
  
-            !modeIndexCoagulator = coagulatingMode(iCoagulatingMode) !Index of the coagulating mode
-
-            !modeIndexReceiver = receiverMode(iReceiverMode) !Index of receiver mode
-            !do nsiz=1, secNrBins  !aerotab bin sizes   
-            do nsiz=1,nBinsTab  !aerotab bin sizes   
+            do nsiz=1,nBinsTab  !aerotab bin sizes
                !Sum up coagulation sink for this coagulating species (for all receiving modes)
                normalizedCoagulationSink_sec(iCoagulatingMode, modeIndexReceiver)      =   &   ![m3/#/s]
                      normalizedCoagulationSink_sec(iCoagulatingMode, modeIndexReceiver)    &   ![m3/#/s] Previous value
                    + normnk(modeIndexReceiver, nsiz)          &   !Normalized size distribution for receiver mode
                    * K12_sec(iReceiverMode,iCoagulatingMode,  nsiz)                  !Koagulation coefficient (m3/#/s)
-               !write(*,*) 'nomr coag sink sec SMB:', secNrBins, normalizedCoagulationSink_sec(iCoagulatingMode,modeIndexReceiver)
-               !write(*,*) 'K12 sec SMB:', secNrBins, K12_sec(iReceiverMode, iCoagulatingMode, nsiz)!CoagulatingMode,modeIndexReceiver)
             end do !Look up table size
      end do    !receiver modes
-     end do   
- 
-     !smb--sectional
+     end do
+     !smb-- sectional
  
       nsiz=1
       do while (rBinMidPoint(nsiz).lt.rcoagdroplet.and.nsiz.lt.nBinsTab)
@@ -396,8 +394,8 @@ subroutine initializeCoagulationCoefficients(rhob,rk)
          
 end subroutine initializeCoagulationCoefficients
 
-!smb++sectional
-! add autocoagulation:
+!smb++ sectional
+! add coagulation within sectional scheme:
 subroutine calculateCoagulationCoefficient_autosec(CoagulationCoefficient, rad_coag, rad_receiver, coagDensity, receiverDensity)
 
       implicit none
@@ -452,7 +450,7 @@ subroutine calculateCoagulationCoefficient_autosec(CoagulationCoefficient, rad_c
 
 end subroutine calculateCoagulationCoefficient_autosec
 
-
+!smb-- sectional
 
 
 
@@ -782,6 +780,7 @@ implicit none
         !smb--sectional
 end subroutine coagtend_sec
 
+    !smb-- sectional
 
 
 

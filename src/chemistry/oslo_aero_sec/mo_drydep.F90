@@ -273,10 +273,10 @@ contains
     endwhere
 
 #if (defined OFFLINE_DYN)
-      !smb++
+      !smb++ drydepfix
       met_icefrac=icefrac
       met_ocnfrac =ocnfrac
-      !smb--
+      !smb-- drydepfix
       call get_met_fields(lndfrac, met_ocnfrac, met_icefrac, lchnk, ncol)
 #endif
 

@@ -57,7 +57,9 @@ contains
    real(r8) :: rlats(pcols), rlons(pcols)  ! latitude & longitude (radians)
    real(r8) :: fdiurn_oxid
    real(r8) :: fdiurn_no3oxid              !++IH
+   !smb++ sectional diurnal
    real(r8) :: time_from_tset     ! time from sunset ++smb
+   !smb-- sectional diurnal
 
 
 
@@ -127,13 +129,12 @@ contains
             ta = max( t1, trisej )      !start or sunrise (if later)
             tb = min( t2, tsetj )       !end of step or sunset (if earlier)
             sum = sum + max( tb-ta, 0._r8 )
-			!if (sum .gt. 0._r8) then
-			! 	time_from_tset = max( abs((tb+ta)*0.5_r8 -trisej), &
-			!			abs(tsetj - (tb+ta)*0.5_r8 ))
-			!end if !min(time_from_tset, min(abs(tb-trise), abs(tset-tb)))
+			!smb++ sectional diurnal
 		 	time_from_tset = min(time_from_tset, &
 					min(abs( 0.5_r8 *(ta + tb) - trisej), &
 					abs( 0.5_r8 *(ta + tb) - tsetj)))
+			!smb-- sectional diurnal
+
          end do
 
          !sum is length of timestep (in days) which has light
@@ -145,17 +146,11 @@ contains
          !++IH
          if (inv_oh .or. inv_ho2) then
          !--IH
-            !fdiurn_oxid = max(1.0e-3_r8, sum/(t2-t1)/tlight)
-			!smb++
+			!smb++ sectional diurnal
 			!fdiurn_oxid = max(1.0e-3_r8, sum/(t2-t1)/tlight)
-         	!fdiurn_oxid = max(1.0e-3_r8, sum/(t2-t1)*max(SIN(( t2-trise)/tlight*pi), &
-		 	!SIN( ( t1-trise)/tlight*pi)))
-         	!fdiurn_oxid = max(1.0e-3_r8, sum/(t2-t1)/tlight*(SIN(( (ta+tb)/2.0_r8-trise)/tlight*pi))) !, &
          	fdiurn_oxid = max(1.0e-3_r8, pi*0.5_r8*sum/(t2-t1)/tlight*SIN(( (time_from_tset)/tlight*pi))) !, &
-		 			 !SIN( ( t1-trise)/tlight*pi)))
 
-		  	! smb--
-
+		  	!smb-- sectional diurnal
          !++IH
          end if
          if (inv_no3) then
