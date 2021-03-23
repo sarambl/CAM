@@ -3,11 +3,7 @@ subroutine aeronucl(lchnk, ncol, t, pmid, h2ommr, h2so4pc, oxidorg, coagnuc, nuc
 !smb++ sectional
                 nuclrate, nuclrate_pbl_o, formrate, formrate_pbl_o,  &
                 orgnucl_o, h2so4nucl_o, grsoa_o, grh2so4_o, dt, &
-               ! nuclrate, nuclrate_pbl_o,formrate, formrate_pbl_o, coagnucl_o, &
-               ! orgnucl_o, h2so4nucl_o,grsoa_o, grh2so4_o, dt, &
                 d_form)
-
-
 
 !smb-- sectional
 
@@ -49,25 +45,23 @@ subroutine aeronucl(lchnk, ncol, t, pmid, h2ommr, h2so4pc, oxidorg, coagnuc, nuc
     real(r8), intent(in)  :: zm(pcols,pver)           ! Height at layer midpoints (m)
     real(r8), intent(in)  :: pblht(pcols)             ! Planetary boundary layer height (m)
     !smb++sectional
-    real(r8), intent(in)  :: d_form                   ! Particle size at calculated formation rate [m]a
+    real(r8), intent(in)  :: d_form                   ! Particle size at calculated formation rate [m]
+    ! because the timestep may be divided in two, the output needs to be averaged over all timesteps
+    ! therefore we track this in these variables
+    real(r8), intent(inout)  :: nuclrate(pcols, pver)           ! Nucleation rate output
+    real(r8), intent(inout)  :: nuclrate_pbl_o(pcols, pver)     ! Nucleation in pbl rate output
+    real(r8), intent(inout)  :: formrate(pcols, pver)           ! formation rate output
+    real(r8), intent(inout)  :: formrate_pbl_o(pcols,pver)      ! formation rate in pbl output
 
-        real(r8), intent(inout)  :: nuclrate(pcols, pver)       ! Nucleation rate out
-        real(r8), intent(inout)  :: nuclrate_pbl_o(pcols, pver) ! Nucleation rate out
-        real(r8), intent(inout)  :: formrate(pcols, pver)        ! Nucleation rate out
-        real(r8), intent(inout)  :: formrate_pbl_o(pcols,pver)  ! Nucleation rate out
-
-       ! real(r8), intent(inout)  :: coagnucl_o(pcols, pver)
-        real(r8), intent(inout)  :: orgnucl_o(pcols, pver)         ! Nucleation rate out
-        real(r8), intent(inout)  :: h2so4nucl_o(pcols, pver)       ! Nucleation rate out
-        real(r8), intent(inout)  :: grh2so4_o(pcols, pver)         ! Nucleation rate out
-        real(r8), intent(inout)  :: grsoa_o(pcols, pver)       ! Nucleation rate out
-        real(r8), intent(in)  :: dt  !Number of  substeps
+    real(r8), intent(inout)  :: orgnucl_o(pcols, pver)          ! concentration of organics for output
+    real(r8), intent(inout)  :: h2so4nucl_o(pcols, pver)        ! conc h2so4 for output
+    real(r8), intent(inout)  :: grh2so4_o(pcols, pver)          ! GR from H2SO4 for output
+    real(r8), intent(inout)  :: grsoa_o(pcols, pver)            ! GR from organics for output
+    real(r8), intent(in)  :: dt  ! timestep (output is weighted by this)
     !smb-- sectional
 
 
 
-
-    !smb--sectional
 
     !-- Local variables
     
@@ -113,7 +107,7 @@ subroutine aeronucl(lchnk, ncol, t, pmid, h2ommr, h2so4pc, oxidorg, coagnuc, nuc
 
 !cka: OBS    call phys_getopts(pbl_nucleation_out=pbl_nucleation, atm_nucleation_out=atm_nucleation)
     !cka: testing by setting these flags: 
-    pbl_nucleation = 2
+    pbl_nucleation = 3 ! smb++ use Riccobono 2014 for nucleation. 
     atm_nucleation = 1
 
     nuclso4(:,:)=0._r8
@@ -333,10 +327,11 @@ subroutine aeronucl(lchnk, ncol, t, pmid, h2ommr, h2so4pc, oxidorg, coagnuc, nuc
                     !smb++ sectional : updated nucleation parameterization
                     !-- Paasonen et al. (2010)
                     !values from Table 3 in Paasonen et al (2010), modified version of eqn 14
-                    !nuclrate_pbl(i,k)=(6.1E-7_r8)*h2so4(i,k)+(0.39E-7_r8)*orgforgrowth(i,k) !(18)
+                    nuclrate_pbl(i,k)=(6.1E-7_r8)*h2so4(i,k)+(0.39E-7_r8)*orgforgrowth(i,k) !(18)
 
                     !nuclrate_pbl(i,k)=(1.1E-14_r8)*h2so4(i,k)**2+(3.2E-14_r8)*h2so4(i,k)*orgforgrowth(i,k) !(19)
                     !nuclrate_pbl(i,k)=(1.4E-14_r8)*h2so4(i,k)**2+(2.6E-14_r8)*h2so4(i,k)*orgforgrowth(i,k) + (0.037E-14_r8)*orgforgrowth(i,k)**2 ! (20)
+                else if(pbl_nucleation .EQ. 3) then
                     ! Riccobono 2014:
                     nuclrate_pbl(i,k)=3.27E-21_r8*h2so4(i,k)**2*orgforgrowth(i,k)
                     !smb-- sectional
@@ -387,10 +382,10 @@ subroutine aeronucl(lchnk, ncol, t, pmid, h2ommr, h2so4pc, oxidorg, coagnuc, nuc
             !                /volumeToNumber(MODE_IDX_SO4SOA_AIT)   & !==> [m3_{aer} / m3_{air} / sec]
             !                / rhoair(i,k)                            !==> m3_{aer} / kg_{air} /sec
 
-            nuclvolume(i,k) = (formrate_bin(i,k) + formrate_pbl(i,k)) & ![particles/cm3]
+            nuclvolume(i,k) = (formrate_bin(i,k) + formrate_pbl(i,k)) & ! [particles/cm3]
                             *1.0e6_r8                                 & !==> [particles / m3 /]
-                            *d_form**3*pi/6._r8 &!/volumeToNumber(MODE_IDX_SO4SOA_AIT)   & !==> [m3_{aer} / m3_{air} / sec]
-                            / rhoair(i,k)                            !==> m3_{aer} / kg_{air} /sec
+                            *d_form**3*pi/6._r8                       & !==> [m3_{aer} / m3_{air} / sec]
+                            / rhoair(i,k)                               !==> m3_{aer} / kg_{air} /sec
            !smb-- sectional
             !Estimate how much is organic based on growth-rate
             if(gr(i,k)>1.E-10_r8) then
@@ -413,7 +408,6 @@ subroutine aeronucl(lchnk, ncol, t, pmid, h2ommr, h2so4pc, oxidorg, coagnuc, nuc
     nuclrate_pbl_o(:,:)= nuclrate_pbl_o(:,:)+ nuclrate_pbl(:,:)*dt
     formrate(:,:)=formrate(:,:)+(formrate_pbl(:,:)+formrate_bin(:,:))*dt
     formrate_pbl_o(:,:)=formrate_pbl_o(:,:)+formrate_pbl(:,:)*dt
-    !coagnucl_o(:,:)=coagnucl_o(:,:)+coagnuc(:,:)*dt
     grh2so4_o(:,:)=grh2so4_o(:,:)+grh2so4(:,:)*dt
     grsoa_o(:,:)=grsoa_o(:,:)+grorg(:,:)*dt
     orgnucl_o(:,:)=orgnucl_o(:,:)+oxidorg(:,:)*dt

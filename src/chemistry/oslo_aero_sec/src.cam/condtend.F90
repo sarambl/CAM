@@ -825,15 +825,11 @@ end subroutine condtend_sub_super
                    !smb++sectional
                    nuclrate,nuclrate_pbl_o, formrate, formrate_pbl_o, &
                    orgnucl_o, h2so4nucl_o, grsoa_o, grh2so4_o, dt &
-                   !nuclrate, nuclrate_pbl_o,formrate, &
-                   !formrate_pbl_o, coagnucl_o, &
-                   !orgnucl_o, h2so4nucl_o, grsoa_o, grh2so4_o, dt, &
-                   !, secMeanD(1))
                    ,secMeanD(1))
                    !smb--sectional
 
        coagnucl_o(:,:)= coagnucl_o(:,:) + coagulationSink(:,:)*dt
-       firstOrderLossRateNucl(:,:,:)=0.0_r8
+       firstOrderLossRateNucl(:,:,:) = 0.0_r8
        do k=1,pver
           do i=1,ncol
 
