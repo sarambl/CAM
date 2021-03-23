@@ -12,7 +12,7 @@ module condtend
    use commondefinitions
    use chem_mods, only: adv_mass !molecular weights from mozart
    !smb++ sectional
-   use aero_sectional,    only: secNrSpec,secNrBins, secMeanD !smb:sectional
+   use aero_sectional,    only: secNrSpec,secNrBins, secMeanD !
    !smb-- sectional
 !soa
 
@@ -24,9 +24,9 @@ module condtend
    integer, parameter :: COND_VAP_ORG_SV = 3
 
    real(r8), public, dimension(0:nmodes,N_COND_VAP)  :: normalizedCondensationSink       ![m3/#/s] condensation sink per particle in mode i
-   !smb++ sectional
-   real(r8), public, dimension(secNrSpec, secNrBins)  :: normalizedCondensationSink_sec       ![m3/#/s] condensation sink per particle in mode i
-   !smb-- sectional
+   ! smb++ sectional
+   real(r8), public, dimension(secNrSpec, secNrBins)  :: normalizedCondensationSink_sec       ![m3/#/s] condensation sink per particle in bin i
+   ! smb-- sectional
 
    integer, private, dimension(gas_pcnst) :: lifeCycleReceiver                ! [-] array of transformation of life cycle tracers
    real(r8), private, dimension(0:nmodes,N_COND_VAP) :: stickingCoefficient              ! [-] stickingCoefficient for H2SO4 on a mode
@@ -93,8 +93,10 @@ contains
       !5th edition, eqn 11-4-4
 
       use cam_history,     only: addfld, add_default, fieldname_len, horiz_only
+      !smb++ sectional
       use aero_sectional,     only: secSpecNames, secNrSpec, secNrBins, secMeanD !smb:sectional
-          
+      !smb-- sectional
+
       implicit none
 
       real(r8), parameter :: aunit = 1.6606e-27_r8  ![kg] Atomic mass unit
@@ -111,7 +113,7 @@ contains
 
       real(r8), dimension(0:100,0:nmodes,N_COND_VAP) :: DiffusionCoefficient   ! [m2/s] Diffusion coefficient
       !smb++ sectional
-      real(r8), dimension(secNrSpec, secNrBins) :: DiffusionCoefficientSec   ! [m2/s] Diffusion coefficient
+      real(r8), dimension(secNrSpec, secNrBins) :: DiffusionCoefficientSec   ! [m2/s] Diffusion coefficient sectional
       !smb-- sectional
       character(len=fieldname_len+3) :: fieldname_donor
       character(len=fieldname_len+3) :: fieldname_receiver
@@ -139,7 +141,7 @@ contains
       real(r8) :: radmol ![m] radius molecule
       real(r8), dimension(N_COND_VAP) :: th     !thermal velocity
       !smb++ sectional
-      integer                         :: indVol, indBin !smb
+      integer                         :: indSpec, indBin ! indexes
       !smb-- sectional
 
       !Couple the condenseable vapours to chemical species for properties and indexes
@@ -199,12 +201,16 @@ contains
          end do !receiver modes
       end do
       !smb++ sectional
-      do indVol = 1,secNrSpec ! loop through species
-         do indBin = 1, secNrBins         !all modes receive condensation
-            DiffusionCoefficientSec(indVol, indBin) = diff( indVol)  &    !original diffusion coefficient
+      do indSpec = 1,secNrSpec ! loop through species
+         do indBin = 1, secNrBins         !all bins receive condensation
+             !Correct for non-continuum effects, formula is from
+             !Chuang and Penner, Tellus, 1995, sticking coeffient from
+             !Vignati et al, JGR, 2004
+             !fxm: make "diff ==> diff (cond_vap_idx)
+             DiffusionCoefficientSec(indSpec, indBin) = diff( indSpec)  &    !original diffusion coefficient
                /(                                    &       
-                  secMeanD(indBin)*0.5_r8/(secMeanD(indBin)*0.5_r8 + mfv(indVol))  &  !non-continuum correction factor
-                  +4.0_r8*diff(indVol)/(1._r8*th(indVol)*0.5_r8*secMeanD(indBin)) &
+                  secMeanD(indBin)*0.5_r8/(secMeanD(indBin)*0.5_r8 + mfv(indSpec))  &  !non-continuum correction factor
+                  +4.0_r8*diff(indSpec)/(1._r8*th(indSpec)*0.5_r8*secMeanD(indBin)) &  ! sticking coefficient set to 1
                  )
          enddo
        enddo
@@ -228,11 +234,12 @@ contains
       end do
       !smb++ sectional
       normalizedCondensationSink_sec(:,:) =0.0_r8  
-      do indVol =1, secNrSpec
+      do indSpec =1, secNrSpec
          do indBin = 1, secNrBins
-               normalizedCondensationSink_sec(indVol, indBin) =  &
+             ! Since we do not sum over bins, it is slightly different than above (normnk=1, no summing)
+               normalizedCondensationSink_sec(indSpec, indBin) =  &
                                                 + 4.0_r8*pi                                    &
-                                                * DiffusionCoefficientSec( indVol, indBin) &    ![m2/s] diffusion coefficient
+                                                * DiffusionCoefficientSec( indSpec, indBin) &    ![m2/s] diffusion coefficient
                                                 * secMeanD(indBin)*0.5_r8                    ![m] radius of bin
         end do
       end do
@@ -292,7 +299,7 @@ contains
         end if
       end do !imod
    end do !iChem
-       ! +++smb extra output smb
+       ! +++smb extra output smb #todo remove this.
     do imode=1,secNrBins
        WRITE(fieldname_receiver,'(A,I2.2,A)') 'nrSEC', imode,'_diff'
        call addfld(trim(fieldname_receiver),  (/'lev'/), 'A','nr/m3','difference in sectional scheme before and after condensation')
@@ -305,13 +312,12 @@ contains
    
   subroutine condtend_sub_super(lchnk,  q, cond_vap_gasprod, temperature, &
                pmid, pdel, dt, ncol, pblh,zm,qh20)
-      ! Calculate the sulphate nucleation rate, and condensation rate of
-      ! aerosols used for parameterising the transfer of externally mixed
-      ! aitken mode particles into an internal mixture.
-      ! Note the parameterisation for conversion of externally mixed particles
-      ! used the h2so4 lifetime onto the particles, and not a given
-      ! increase in particle radius. Will be improved in future versions of the model
-      ! Added input for h2so4 and soa nucleation: soa_lv_gasprod, soa_sv_gasprod, pblh,zm,qh20 (cka)
+      ! Calculates nucleation rate and condensation rate of aerosols
+      !
+      ! This method calls the condtend method. If the timestep needs to be split in two,
+      ! this will be done here and the condtend method will be called several times.
+      ! This method also writes output once condend is done.
+      !
 
       use cam_history,     only: outfld,fieldname_len
       !++smb: add coagulation for npf:
@@ -370,7 +376,7 @@ contains
       integer   :: indBin ! index for bin
       integer   :: ind_sec ! chemistry index sectional
       !integer   :: tracerIndex
-      integer   :: indVol ! index for condensing volatile species
+      integer   :: indSpec ! index for condensing volatile species
       real(r8)  :: rhoAir
       character(18) :: fieldname_receiver
       ! LOOP OVER i, k!
@@ -380,9 +386,9 @@ contains
              rhoAir = pmid(i,k)/rair/temperature(i,k)
              do indBin = 1, secNrBins
                !Go through all species in bin
-               do indVol = 1,secNrSpec
-                   ind_sec=chemistryIndex(secConstIndex(indVol, indBin))
-                   call sec_numberConc(q(i,k,ind_sec),indVol, &!SpecNames(tracerIndex), &
+               do indSpec = 1,secNrSpec
+                   ind_sec=chemistryIndex(secConstIndex(indSpec, indBin))
+                   call sec_numberConc(q(i,k,ind_sec),indSpec, &!SpecNames(tracerIndex), &
                            indBin,rhoAir, &
                            dummy_nc)
                    ! add concentration from species
@@ -513,10 +519,10 @@ contains
          do i=1,ncol
            do indBin = 1, secNrBins
                !Go through all core species in that mode
-               do indVol = 1,secNrSpec
-                   ind_sec=chemistryIndex(secConstIndex(indVol, indBin))
+               do indSpec = 1,secNrSpec
+                   ind_sec=chemistryIndex(secConstIndex(indSpec, indBin))
                    rhoAir = pmid(i,k)/rair/temperature(i,k)
-                   call sec_numberConc(q(i,k,ind_sec),indVol, &!SpecNames(indVol), &
+                   call sec_numberConc(q(i,k,ind_sec),indSpec, &!SpecNames(indSpec), &
                            indBin,rhoAir, &
                            dummy_nc)
                    numberconcentration_sec_new(i,k, indBin)=numberConcentration_sec_new(i,k, indBin)+&
@@ -538,12 +544,12 @@ contains
 end subroutine condtend_sub_super
 
 
-   subroutine condtend_sub(lchnk,  q, cond_vap_gasprod, temperature, &
+   subroutine condtend_sub(lchnk,  q, cond_vap_gasprod, temperature,            &
            !smb++sectional
-                nuclrate,nuclrate_pbl_o, formrate, formrate_pbl_o, coagnucl_o, &
-                orgnucl_o, h2so4nucl_o, grsoa_o, grh2so4_o,&
-                coltend_o, split_dt, &
-                leaveSec, &
+                nuclrate,nuclrate_pbl_o, formrate, formrate_pbl_o, coagnucl_o,  &
+                orgnucl_o, h2so4nucl_o, grsoa_o, grh2so4_o,                     &
+                coltend_o, split_dt,                                            &
+                leaveSec,                                                       &
            !smb--sectional
                pmid, pdel, dt, ncol, pblh,zm,qh20)
       
@@ -567,21 +573,21 @@ end subroutine condtend_sub_super
       use constituents,    only: pcnst  ! h2so4 and soa nucleation (cka)
 
       implicit none
-       !++SMB:
-      real(r8), intent(inout)  :: nuclrate (pcols, pver)       ! Nucleation rate out
-      real(r8), intent(inout)  :: nuclrate_pbl_o (pcols, pver) ! Nucleation rate out
-      real(r8), intent(inout)  :: formrate(pcols, pver)        ! Nucleation rate out
-      real(r8), intent(inout)  :: formrate_pbl_o(pcols,pver)  ! Nucleation rate out
+       !++smb sectional
+      real(r8), intent(inout)  :: nuclrate (pcols, pver)            ! Nucleation rate output
+      real(r8), intent(inout)  :: nuclrate_pbl_o (pcols, pver)      ! Nucleation rate pbl output
+      real(r8), intent(inout)  :: formrate(pcols, pver)             ! Formation rate output
+      real(r8), intent(inout)  :: formrate_pbl_o(pcols,pver)        ! Formation rate pbl output
 
-      real(r8), intent(inout)  :: coagnucl_o(pcols, pver)
-      real(r8), intent(inout)  :: orgnucl_o(pcols, pver)         ! Nucleation rate out
-      real(r8), intent(inout)  :: h2so4nucl_o(pcols, pver)       ! Nucleation rate out
-      real(r8), intent(inout)  :: grsoa_o(pcols, pver)         ! Nucleation rate out
-      real(r8), intent(inout)  :: grh2so4_o(pcols, pver)       ! Nucleation rate out
-      real(r8), dimension(pcols, gas_pcnst)            :: coltend_o
-      logical, intent(out)     :: split_dt
-      real(r8), intent(out)    :: leaveSec(pcols, pver, secNrSpec)
-       !--SMB
+      real(r8), intent(inout)  :: coagnucl_o(pcols, pver)           ! Coagulation sink for npf output
+      real(r8), intent(inout)  :: orgnucl_o(pcols, pver)            ! Organics for nucleation output
+      real(r8), intent(inout)  :: h2so4nucl_o(pcols, pver)          ! H2SO4 for nucleation output
+      real(r8), intent(inout)  :: grsoa_o(pcols, pver)              ! GR from organics output
+      real(r8), intent(inout)  :: grh2so4_o(pcols, pver)            ! GR from H2SO4 output
+      real(r8), dimension(pcols, gas_pcnst) :: coltend_o            ! column tendency output
+      logical,  intent(out)    :: split_dt                          ! if true, time step needs to be split
+      real(r8), intent(out)    :: leaveSec(pcols, pver, secNrSpec)  ! leaving the sectional scheme
+       !--smb sectional
 
 
       ! arguments
@@ -620,7 +626,6 @@ end subroutine condtend_sub_super
       real(r8) :: numberConcentration(0:nmodes) ![#/m3] number concentration
       !smb++sectional
       real(r8) :: numberconcentration_sec(pcols,pver, secnrbins) ![#/m3] number concentration
-      !real(r8) :: leavesec(secNrSpec)
       !smb--sectional
       real(r8) :: numberConcentrationExtMix(pcols,pver,numberOfExternallyMixedModes)
       real(r8), dimension(pcols, gas_pcnst)            :: coltend
@@ -653,23 +658,29 @@ end subroutine condtend_sub_super
        real(r8) :: nuclso4(pcols,pver)               ![kg/kg/s] Nucleated so4 mass tendency from RM's parameterization
        real(r8) :: nuclsoa(pcols,pver)               ![kg/kg/s] Nucleated soa mass tendency from RM's parameterization
        integer  :: cond_vap_idx
-       real(r8) :: dummy  !smb++sectional
-       integer  :: ind_sec  !smb++sectional
-       integer  :: indbin, indvol
+       !smb++ sectional
+       real(r8) :: dummy  !
+       integer  :: ind_sec  ! chemistry index sectional tracers
+       integer  :: indbin, indSpec ! indices
+       !smb-- sectional
 
        !Initialize h2so4 and soa nucl variables
        coagulationSink(:,:)=0.0_r8
        condensationSinkFraction(:,:,:,:) = 0.0_r8  !Sink to the coming "receiver" of any vapour
        numberConcentrationExtMix(:,:,:) = 0.0_r8
+       !smb++ sectional
+       condensationsinkfraction_sec(:,:,:, :) = 0.0_r8
+       numberconcentration_sec(:,:, :) = 0.0_r8
+       !smb-- sectional
 
        do k=1,pver
            do i=1,ncol
 
                 condensationSink(:,:) = 0.0_r8  !Sink to the coming "receiver" of any vapour
-                !smb++smb
+                !smb++ sectional
                 ! initialize condensation sink for sectional
                 condensationSink_sec(:,:) = 0.0_r8  !Sink to the coming "receiver" of any vapour
-                !smb--smb
+                !smb-- sectional
 
                 !NB: The following is duplicated code, coordinate with koagsub!!
                 !Initialize number concentration for this receiver
@@ -697,25 +708,25 @@ end subroutine condtend_sub_super
                                                     * rhoAir(i,k)                                 !kg/m3 ==> #/m3_{air}
                    end do !Lifecycle "core" species in this mode
                 enddo
-                !smb++sectional
-                !initialize
+                !smb++ sectional
+                ! Calculate number concentration in each bin :
                 numberConcentration_sec(i,k, :) = 0.0_r8
 
                 !Go though all bins receiving condensation
                 do indBin = 1, secNrBins
-                   !Go through all the volatiles in the bin
-                   do  indVol = 1,secNrSpec
-                      ind_sec=chemistryIndex(secConstIndex(indVol, indBin))
-                      call sec_numberConc(q(i,k,ind_sec),indVol, &!SpecNames(tracerIndex), &
+                   !Go through all the species in the bin
+                   do  indSpec = 1,secNrSpec
+                      ind_sec=chemistryIndex(secConstIndex(indSpec, indBin))
+                      call sec_numberConc(q(i,k,ind_sec),indSpec, &!SpecNames(tracerIndex), &
                                indBin,rhoAir(i,k), &
-                               dummy)
+                               dummy)        ! dummy holds number concentration
                       ! add number concentration from tracer
                       numberConcentration_sec(i,k, indBin)=numberConcentration_sec(i,k, indBin)+&
                                                                        dummy
 
                    end do !
                 enddo
-                !smb--sectional
+                !smb-- sectional
 
 
                 !All modes are condensation receivers
@@ -723,56 +734,58 @@ end subroutine condtend_sub_super
                    do mode_index_receiver = 0, nmodes
 
                       !This is the loss rate a gas molecule will see due to aerosol surface area
-                      condensationSink(mode_index_receiver,cond_vap_idx)   = normalizedCondensationSink(mode_index_receiver,cond_vap_idx)  & ![m3/#/s]
-                                                          * numberConcentration(mode_index_receiver)             ![#/m3]
-                                                          !==> [1/s]
+                      condensationSink(mode_index_receiver,cond_vap_idx)   = &
+                              normalizedCondensationSink(mode_index_receiver,cond_vap_idx)  &   ![m3/#/s]
+                                      * numberConcentration(mode_index_receiver)                ![#/m3]
+                                                                                                !==> [1/s]
                    end do !Loop over receivers
                 end do
-                !smb++sectional
-                ! condensation sink to sectional mode:
-                do indVol=1,secNrSpec
+                !smb++ sectional
+                ! condensation sink to sectional bin:
+                do indSpec=1,secNrSpec
                    do indBin = 1, secNrBins
 
                       !This is the loss rate a gas molecule will see due to aerosol surface area
-                      condensationSink_sec( indVol, indBin)   = normalizedCondensationSink_sec( indVol, indBin)  & ![m3/#/s]
+                      condensationSink_sec( indSpec, indBin)   = normalizedCondensationSink_sec( indSpec, indBin)  & ![m3/#/s]  per particle
                                                           * numberConcentration_sec(i,k,indBin)             ![#/m3]
-                      !write(*,*)  'smb: condensations sink sec', mode_index_receiver,cond_vap_idx, condensationSink_sec(mode_index_receiver, cond_vap_idx)
                                                           !==> [1/s]
                    end do !Loop over receivers
                 end do
-                !smb--sectional
+                !smb-- sectional
 
 
                 !Find concentration after condensation of all
                 !condenseable vapours
-                !smb++sectional edited:
+                ! smb++ sectional edited:
                 ! condensation sink fraction that goes to each bin in sectional scheme
+                ! set to zero first:
                 condensationSinkFraction_sec(i,k,:,:)=0.0_r8
+                ! smb-- sectional
                 do cond_vap_idx=1,N_COND_VAP
 
-                   !sum of cond. sink for this vapour [1/s]
-                   !smb: assumes same order of gasses in sectional and other (1: H2SO4,
-                   !2: SOA_LV, 3: SOA_SV
-                   sumCondensationSink(i,k,cond_vap_idx) = sum(condensationSink(:,cond_vap_idx))
-                   if (cond_vap_idx .LE. secNrSpec) then
-                       sumCondensationSink(i,k,cond_vap_idx) = sumCondensationSink(i,k,cond_vap_idx)+&
-                                       sum(condensationSink_sec( cond_vap_idx,:))
-                       condensationSinkFraction_sec(i,k,cond_vap_idx,:) = condensationSink_sec(cond_vap_idx, :) &
-                                                                       /(sumCondensationSink(i,k,cond_vap_idx)+1.e-30_r8)![frc]
-                       !Nwrite(*,*)  'smb: condensations sink frac',cond_vap_idx,  condensationSinkFraction_sec(i,k,:, cond_vap_idx)
-                   end if
+                    !sum of cond. sink for this vapour [1/s]
+                    sumCondensationSink(i,k,cond_vap_idx) = sum(condensationSink(:,cond_vap_idx))
+                    !smb++ sectional
+                    ! Need to add condensation sink to sectional scheme for particles in sectional scheme
+                    ! However, not all tracers may contribute:
+                    ! assumes same order of gasses in sectional and other (1: H2SO4,2: SOA_LV, 3: SOA_SV)
+                    if (cond_vap_idx .LE. secNrSpec) then
+                        sumCondensationSink(i,k,cond_vap_idx) = sumCondensationSink(i,k,cond_vap_idx)+&
+                                sum(condensationSink_sec( cond_vap_idx,:))
+                        ! Keeps track of the fraction of the condensate to the sectional bins for each tracer
+                        condensationSinkFraction_sec(i,k,cond_vap_idx,:) = condensationSink_sec(cond_vap_idx, :) &
+                                /(sumCondensationSink(i,k,cond_vap_idx)+1.e-30_r8)![frc]
+                    end if
+                    !smb-- sectional
 
 
-
-
-                   !Solve the intermediate (end of timestep) concentration using
-                   !euler backward solution C_{old} + P *dt - L*C_{new}*dt = C_{new} ==>
-                   !Cnew -Cold = prod - loss ==>
-                   intermediateConcentration(i,k,cond_vap_idx) = &
-                                        ( q(i,k,cond_vap_map(cond_vap_idx)) + cond_vap_gasprod(i,k,cond_vap_idx)*dt ) &
-                                        / (1.0_r8 + sumCondensationSink(i,k,cond_vap_idx)*dt)
-                end do     !
-                !smb--sectional
+                !Solve the intermediate (end of timestep) concentration using
+                !euler backward solution C_{old} + P *dt - L*C_{new}*dt = C_{new} ==>
+                !Cnew -Cold = prod - loss ==>
+                intermediateConcentration(i,k,cond_vap_idx) = &
+                                     ( q(i,k,cond_vap_map(cond_vap_idx)) + cond_vap_gasprod(i,k,cond_vap_idx)*dt ) &
+                                     / (1.0_r8 + sumCondensationSink(i,k,cond_vap_idx)*dt)
+                end do
 
                 !Save the fraction of condensation sink for the externally mixed modes
                 !(Needed below to find volume shell)
@@ -822,22 +835,26 @@ end subroutine condtend_sub_super
        call aeronucl(lchnk,ncol,temperature, pmid, qh20, &
                    intermediateConcentration(:,:,COND_VAP_H2SO4), soa_lv_forNucleation, &
                    coagulationSink, nuclso4, nuclsoa, zm, pblh, &
-                   !smb++sectional
+                   !smb++ sectional
                    nuclrate,nuclrate_pbl_o, formrate, formrate_pbl_o, &
                    orgnucl_o, h2so4nucl_o, grsoa_o, grh2so4_o, dt &
-                   ,secMeanD(1))
-                   !smb--sectional
+                   ,secMeanD(1) &
+                   !smb-- sectional
+               )
 
+       !smb++ sectional
        coagnucl_o(:,:)= coagnucl_o(:,:) + coagulationSink(:,:)*dt
+       !smb-- sectional
        firstOrderLossRateNucl(:,:,:) = 0.0_r8
        do k=1,pver
           do i=1,ncol
 
              !First order loss rate (1/s) for nucleation
+              !smb++ added check for 0
               if (intermediateConcentration(i,k,COND_VAP_H2SO4) .eq. 0) then
                   firstOrderLossRateNucl(i,k,COND_VAP_H2SO4)=0._r8
               else
-                  firstOrderLossRateNucl(i,k,COND_VAP_H2SO4) = nuclSo4(i,k)/(intermediateConcentration(i,k,COND_VAP_H2SO4))
+                  firstOrderLossRateNucl(i,k,COND_VAP_H2SO4) = nuclSo4(i,k)/intermediateConcentration(i,k,COND_VAP_H2SO4)
 
               end if
               if (intermediateConcentration(i,k,COND_VAP_ORG_LV) .eq. 0 )then
@@ -845,6 +862,7 @@ end subroutine condtend_sub_super
                 else
                   firstOrderLossRateNucl(i,k,COND_VAP_ORG_LV) = nuclSOA(i,k)/intermediateConcentration(i,k,COND_VAP_ORG_LV)
               end if
+              !smb-- added check for 0
              !First order loss rate (1/s) for nucleation
 
              do cond_vap_idx = 1,N_COND_VAP
@@ -865,39 +883,35 @@ end subroutine condtend_sub_super
              end do !cond_vap_idx
 
              !Add nuceated mass to so4_na mode
-             !smb++sectional
+             !smb++ sectional don't add to so4_na directly, must go to sectional scheme (later)
              !q(i,k,chemistryIndex(l_so4_na)) =  q(i,k,chemistryIndex(l_so4_na))       &
              !            + gasLost(i,k,COND_VAP_H2SO4)*fracNucl(i,k,COND_VAP_H2SO4)
-             !smb--sectional
 
-             !smb++sectional
              !H2SO4 condensate
              do ind_sec=1, secNrBins
-                    q(i,k,chemistryIndex(secConstIndex(1,ind_sec))) = q(i,k,chemistryIndex(secConstIndex(1,ind_sec)))         &
-                            + gasLost(i,k,COND_VAP_H2SO4)*(1.0_r8-fracNucl(i,k,COND_VAP_H2SO4))    &
-                            *condensationSinkFraction_sec(i,k,COND_VAP_H2SO4, ind_sec)
+                    q(i,k,chemistryIndex(secConstIndex(1,ind_sec))) =                               &
+                            q(i,k,chemistryIndex(secConstIndex(1,ind_sec)))                         &
+                            + gasLost(i,k,COND_VAP_H2SO4)*(1.0_r8-fracNucl(i,k,COND_VAP_H2SO4))     &
+                            *condensationSinkFraction_sec(i,k,COND_VAP_H2SO4, ind_sec)  ! fraction to the particular bin
              end do
-             !smb--sectional
+             !smb-- sectional
              !H2SO4 condensate
              q(i,k,chemistryIndex(l_so4_a1)) = q(i,k,chemistryIndex(l_so4_a1))         &
                             + gasLost(i,k,COND_VAP_H2SO4)*(1.0_r8-fracNucl(i,k,COND_VAP_H2SO4)) &
-                            !smb++sectional
+                            !smb++ sectional must substract the fraction which goes to the sectional particles:
                             *(1-sum(condensationSinkFraction_sec(i,k,COND_VAP_H2SO4,:)))
-                            !smb--sectional
+                            !smb-- sectional
 
              !Add nucleated mass to soa_na mode
-             !smb++sectional
+             !smb++sectional sectional don't add to so4_na directly, must go to sectional scheme (done later)
              !q(i,k,chemistryIndex(l_soa_na)) =  q(i,k,chemistryIndex(l_soa_na))       &
              !            + gasLost(i,k,COND_VAP_ORG_LV)*fracNucl(i,k,COND_VAP_ORG_LV)
-             !smb--sectional
-             !smb++sectional
              !SOA_LV condensate
              do ind_sec=1, secNrBins
-                    !OBS: test!!!!
-                    q(i,k,chemistryIndex(secConstIndex(2,ind_sec))) = q(i,k,chemistryIndex(secConstIndex(2,ind_sec)))         &
-                    !q(i,k,chemistryIndex(secConstIndex(2,2))) = q(i,k,chemistryIndex(secConstIndex(2,ind_sec)))         &
-                            + gasLost(i,k,COND_VAP_ORG_LV)*(1.0_r8 - fracNucl(i,k,COND_VAP_ORG_LV))    &
-                            *condensationSinkFraction_sec(i,k,COND_VAP_ORG_LV, ind_sec)
+                    q(i,k,chemistryIndex(secConstIndex(2,ind_sec))) =                                   &
+                            q(i,k,chemistryIndex(secConstIndex(2,ind_sec)))                             &
+                            + gasLost(i,k,COND_VAP_ORG_LV)*(1.0_r8 - fracNucl(i,k,COND_VAP_ORG_LV))     &
+                            *condensationSinkFraction_sec(i,k,COND_VAP_ORG_LV, ind_sec) ! fraction to the particular bin
              end do
              !smb--sectional
 
@@ -905,8 +919,8 @@ end subroutine condtend_sub_super
              q(i,k,chemistryIndex(l_soa_a1)) = q(i,k,chemistryIndex(l_soa_a1))         &
                             + gasLost(i,k,COND_VAP_ORG_SV)                             &           ! "semi volatile" can not nucleate
                             + gasLost(i,k,COND_VAP_ORG_LV)*(1.0_r8-fracNucl(i,k,COND_VAP_ORG_LV)) &  ! part of low volatile which does not nucleate
-                            !smb++sectional
-                            *(1-sum(condensationSinkFraction_sec(i,k,COND_VAP_ORG_LV,:)))
+                            !smb++ sectional must substract the fraction which goes to the sectional particles:
+                             *(1-sum(condensationSinkFraction_sec(i,k,COND_VAP_ORG_LV,:)))
                             !smb--sectional
 
              !condenseable vapours
@@ -915,28 +929,22 @@ end subroutine condtend_sub_super
              q(i,k,chemistryIndex(l_soa_sv)) = intermediateConcentration(i,k,COND_VAP_ORG_SV)
 
 
-             !q(i,k,chemistryIndex(secConstIndex(1,1))) = ! q(i,k,chemistryIndex(secConstIndex(1,1)))       &
-                         !+ gasLost(i,k,COND_VAP_H2SO4)*fracNucl(i,k,COND_VAP_H2SO4)
-             !q(i,k,chemistryIndex(secConstIndex(2,1))) = 0._r8! q(i,k,chemistryIndex(secConstIndex(2,1)))       &
-             !smb++sectional
+             !smb++sectional grow particles in sectional scheme: 
              call sec_moveMass(q(i,k,:), numberConcentration_sec(i,k,:), leaveSec(i,k,:), &
                             rhoAir(i,k), 2._r8*originalNumberMedianRadius(MODE_IDX_SO4SOA_AIT), split_dt)
-
+             ! Add nucleated mass to first bin of sectional scheme:
              q(i,k,chemistryIndex(secConstIndex(1,1))) =  q(i,k,chemistryIndex(secConstIndex(1,1)))       &
                          + gasLost(i,k,COND_VAP_H2SO4)*fracNucl(i,k,COND_VAP_H2SO4)
              q(i,k,chemistryIndex(secConstIndex(2,1))) =  q(i,k,chemistryIndex(secConstIndex(2,1)))       &
                          + gasLost(i,k,COND_VAP_ORG_LV)*fracNucl(i,k,COND_VAP_ORG_LV)
-             !q(i,k,chemistryIndex(secConstIndex(1,secNrBins))) = q(i,k,chemistryIndex(secConstIndex(1,secNrBins)))         &
-             !                       -leaveSec(1)
-             !WRITE(*,*) 'SMB: added to nucl:', gasLost(i,k,COND_VAP_ORG_LV)*fracNucl(i,k,COND_VAP_ORG_LV)
 
+            ! Add mass from sectional scheme to so4_na and soa_na:
              q(i,k,chemistryIndex(l_so4_na)) = q(i,k,chemistryIndex(l_so4_na))         &
-                                    +leaveSec(i,k, 1)!*1.0E2_r8
-             !q(i,k,chemistryIndex(secConstIndex(2,secNrBins))) = q(i,k,chemistryIndex(secConstIndex(2,secNrBins)))         &
-             !                       -leaveSec(2)
+                                    +leaveSec(i,k, 1)
              q(i,k,chemistryIndex(l_soa_na)) = q(i,k,chemistryIndex(l_soa_na))         &
-                                    +leaveSec(i,k,2)!*1.0E2_r8
+                                    +leaveSec(i,k,2)
              !smb--sectional
+
 
              !Condensation transfers mass from externally mixed to internally mixed modes
              do iDonor = 1,numberOfExternallyMixedModes
@@ -1007,54 +1015,55 @@ end subroutine condtend_sub_super
           end do
 
 
-          !smb++sectional
+          !smb++ sectional
           ! Remove so4_n ---> directly into so4_na
           coltend(:ncol,chemistryIndex(secConstIndex(1,1))) = coltend(:ncol,chemistryIndex(secConstIndex(1,1))) + &
+          !smb-- sectional
                                                  sum(                                         &
                                                     gasLost(:ncol,:,COND_VAP_H2SO4)           &
                                                     *fracNucl(:ncol,:,COND_VAP_H2SO4)*pdel(:ncol,:) , 2 &
                                                     )/gravit/dt
 
-          !smb--sectional
           ! Remove so4_n ---> directly into so4_na
+          !smb++ put in how much leaves sectional scheme:
           coltend(:ncol,chemistryIndex(l_so4_na)) = coltend(:ncol,chemistryIndex(l_so4_na)) + &
                                                  sum(                                         &
                                                     leaveSec(:ncol,:,COND_VAP_H2SO4)           &
                                                     *pdel(:ncol,:) , 2 &
                                                     )/gravit/dt
-
+          !smb--sectional
           !Take into account H2SO4 (gas) condensed in budget
           coltend(:ncol,chemistryIndex(l_so4_a1)) = coltend(:ncol,chemistryIndex(l_so4_a1)) + &
                                                  sum(                                         &
                                                     gasLost(:ncol,:,COND_VAP_H2SO4)           &
-                                                    !smb++sectional
+                                                    !smb++sectional subtract fraction to sectional scheme
                                                     *(1-sum(condensationSinkFraction_sec(:ncol,:,COND_VAP_H2SO4,:),3)) &
                                                     !smb--sectional
                                                     *(1.0_r8 - fracNucl(:ncol,:,COND_VAP_H2SO4))*pdel(:ncol,:) , 2 &
                                                     )/gravit/dt
 
           !Take into account soa_lv (gas) nucleated in budget
-          !smb++sectional
+          !smb++ sectional
           coltend(:ncol,chemistryIndex(secConstIndex(2,1))) = coltend(:ncol,chemistryIndex(secConstIndex(2,1))) + &
+          !smb-- sectional
                                                  sum(                                         &
                                                     gasLost(:ncol,:,COND_VAP_ORG_LV)              &
                                                     *fracNucl(:ncol,:,COND_VAP_ORG_LV)*pdel(:ncol,:) , 2 &
                                                     )/gravit/dt
 
-          !smb--sectional
           !Take into account soa_lv (gas) nucleated in budget
-          !smb++sectional: putt in how much leaves sectional scheme:
+          !smb++ sectional  put in how much leaves sectional scheme:
           coltend(:ncol,chemistryIndex(l_soa_na)) = coltend(:ncol,chemistryIndex(l_soa_na)) + &
                                                  sum(                                         &
                                                     leaveSec(:ncol,:,COND_VAP_ORG_LV)              &
                                                     *pdel(:ncol,:) , 2 &
                                                     )/gravit/dt
-
+          !smb-- sectional
           !Take into account soa gas condensed in the budget (both LV and SV)
           coltend(:ncol,chemistryIndex(l_soa_a1)) = coltend(:ncol,chemistryIndex(l_soa_a1)) + &
                                                  sum(                                         &
                                                     gasLost(:ncol,:,COND_VAP_ORG_LV)           &
-                                                    !smb++sectional
+                                                    !smb++sectional subtract fraction to sectional scheme
                                                     *(1-sum(condensationSinkFraction_sec(:ncol,:,COND_VAP_ORG_LV,:),3)) &
                                                     !smb--sectional
                                                     *(1.0_r8 - fracNucl(:ncol,:,COND_VAP_ORG_LV))*pdel(:ncol,:) , 2 &
@@ -1063,7 +1072,7 @@ end subroutine condtend_sub_super
                                                  sum(                                         &
                                                     gasLost(:ncol,:,COND_VAP_ORG_SV)*pdel(:ncol,:) , 2 &
                                                     )/gravit/dt
-          !smb++sectional: putt in how condenses on sectional:
+          !smb++ sectional: putt in how condenses on sectional:
           do indBin=1,secNrBins
                coltend(:ncol,chemistryIndex(secConstIndex(1,indBin))) = coltend(:ncol, chemistryIndex(secConstIndex(1,indBin)))+ &
                                                     sum(                    &
@@ -1082,7 +1091,8 @@ end subroutine condtend_sub_super
           end do
 
           coltend_o(:,:)=coltend(:,:)
-
+          !smb-- sectional
+          !smb++ sectional remove write to file, done in super method
           ! do i=1,gas_pcnst
           !    if(lifeCycleReceiver(i) .gt. 0 )then
           !       long_name= trim(solsym(i))//"condTend"
@@ -1099,6 +1109,7 @@ end subroutine condtend_sub_super
           ! call outfld(long_name, coltend(:ncol,chemistryIndex(l_so4_na)),pcols,lchnk)
           ! long_name=trim(solsym(chemistryIndex(l_soa_na)))//"condTend"
           ! call outfld(long_name, coltend(:ncol,chemistryIndex(l_soa_na)),pcols,lchnk)
+          !smb-- sectional
 
        endif
 
