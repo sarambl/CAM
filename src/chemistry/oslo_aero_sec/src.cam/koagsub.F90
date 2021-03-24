@@ -38,8 +38,8 @@ module koagsub
    !smb-- sectional
    real(r8), dimension(0:nmodes,0:nmodes) :: normalizedCoagulationSink ![m3/#/s]
    real(r8), dimension(0:nmodes)          :: NCloudCoagulationSink    ![m3/#/s]
-   
-   !These are the modes which are coagulating!
+
+   !These are the modes which are coagulating (belonging to mixtures no. 0, 1, 2, 4, 12, 14)
    integer, dimension(numberOfCoagulatingModes) :: coagulatingMode =    & 
      (/MODE_IDX_BC_EXT_AC                                               &  !inert mode
      , MODE_IDX_SO4SOA_AIT, MODE_IDX_BC_AIT, MODE_IDX_OMBC_INTMIX_COAT_AIT &  !internally mixed small modes
@@ -49,14 +49,14 @@ module koagsub
    ! (belonging to mixtures no. 5, 6, 7, 8, 9, 10)
    integer, dimension(numberOfCoagulationReceivers) :: receiverMode = & 
        (/MODE_IDX_SO4_AC,MODE_IDX_DST_A2, MODE_IDX_DST_A3, MODE_IDX_SS_A1, MODE_IDX_SS_A2, MODE_IDX_SS_A3 /)
-   !++SMB: add for newly formed particles:
+   !smb++ npfcoag: add for newly formed particles:
 
    integer, dimension(numberOfCoagulationReceiversNPF) :: receiverModeNPF = & 
        (/MODE_IDX_SO4_AC,MODE_IDX_DST_A2, MODE_IDX_DST_A3, MODE_IDX_SS_A1, MODE_IDX_SS_A2, MODE_IDX_SS_A3 &
         ,  MODE_IDX_BC_EXT_AC                                               &  !inert mode
      , MODE_IDX_SO4SOA_AIT, MODE_IDX_BC_AIT, MODE_IDX_OMBC_INTMIX_COAT_AIT &  !internally mixed small modes
      , MODE_IDX_BC_NUC, MODE_IDX_OMBC_INTMIX_AIT /)      !externally mixed small modes
-   !--SMB
+   !smb-- npfcoag
    !Coagulation moves aerosol mass to the "coagulate" species, so some
    !lifecycle species will receive mass in this routine!
    integer, dimension(gas_pcnst) :: lifeCycleReceiver
@@ -80,7 +80,7 @@ subroutine initializeCoagulationOutput()
 
    use ppgrid, only: pver
    use cam_history,     only: addfld, add_default, fieldname_len, horiz_only
-    !smb++ sectional
+   !smb++ sectional
    use aero_sectional, only: secSpecNames
    !smb-- sectional
    implicit none
@@ -133,7 +133,7 @@ subroutine initializeCoagulationOutput()
       end if
 
    end do
-   !smb++ sectional
+   !smb++ sectional add sectional
    do iChem = 1, secNrSpec
       do imode = 1, secNrBins
         WRITE(fieldname_donor,'(A,I2.2,A)') trim(secSpecNames(iChem)),imode,'_coagLoss'
@@ -195,7 +195,9 @@ subroutine initializeCoagulationCoefficients(rhob,rk)
       real(r8), dimension(numberOfCoagulationReceivers + numberOfCoagulatingModes, nBinsTab) :: K12NPF = 0.0_r8  !Coagulation coefficient (m3/s)
       !smb-- npfcoag
       !smb++ sectional
+      ! K12 for sectional scheme with modes
       real(r8), dimension(numberOfCoagulationReceivers + numberOfCoagulatingModes, secNrBins,nBinsTab) :: K12_sec = 0.0_r8  !Coagulation coefficient (m3/s)
+      ! K12 for sectional bins with sectional bins
       real(r8), dimension(secNrBins, secNrBins) :: K12_autosec = 0.0_r8  !Coagulation coefficient (m3/s)
       !smb-- sectional
 
@@ -203,6 +205,7 @@ subroutine initializeCoagulationCoefficients(rhob,rk)
 
       real(r8), dimension(nBinsTab) :: coagulationCoefficient
       !smb++ sectional
+      ! between sectional bins:
       real(r8)                      :: coagulationCoefficient_autosec !smb++sectional
       !smb-- sectional
       integer              :: aMode
@@ -237,11 +240,14 @@ subroutine initializeCoagulationCoefficients(rhob,rk)
       end do !receiver modes
       !smb++ npfcoag: add coagulation for newly formed particles
       do iReceiverMode=1,numberOfCoagulatingModes+numberOfCoagulationReceivers
-            modeIndexReceiver = receiverModeNPF(iReceiverMode) 
+            modeIndexReceiver = receiverModeNPF(iReceiverMode)
+            ! calculate coagulation coefficient between new particles and each bin in aerotab
             call calculateCoagulationCoefficient(CoagulationCoefficient    & !O [m3/s] coagulation coefficient 
+                    !smb++ sectional
                                  , rk_NPF                 & !I [m] radius of coagulator
                                  !, rk(MODE_IDX_SO4SOA_AIT) & !Use radius of nucleation mode. ++SMB
-                                 , rhob(MODE_IDX_SO4SOA_AIT)               & !I [kg/m3] density of coagulator
+                    !smb++ sectional
+                                , rhob(MODE_IDX_SO4SOA_AIT)               & !I [kg/m3] density of coagulator
                                  , rhob(modeIndexReceiver) )!I [kg/m3] density of receiver
             K12NPF(iReceiverMode,:) = CoagulationCoefficient(:)
       end do
@@ -249,7 +255,8 @@ subroutine initializeCoagulationCoefficients(rhob,rk)
       !smb++ sectional: add coagulation for newly formed particles
       do iReceiverMode = 1,numberOfCoagulatingModes+numberOfCoagulationReceivers
       do iCoagulatingMode = 1, secNrBins
-            modeIndexReceiver = receiverModeNPF(iReceiverMode) 
+            modeIndexReceiver = receiverModeNPF(iReceiverMode)
+            ! calculate the coagulation coefficient between each bin in the sectional scheme and each bin.
             call calculateCoagulationCoefficient(CoagulationCoefficient    & !O [m3/s] coagulation coefficient 
                                  !, rk_NPF                 & !I [m] radius of coagulator
                                  , secMeanD(iCoagulatingMode)/2._r8 &!rk(MODE_IDX_SO4SOA_AIT) & !Use radius of nucleation mode. ++SMB
