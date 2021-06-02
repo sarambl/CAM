@@ -19,6 +19,10 @@ This repository has the following CAM-Nor branches:
 
   - cam_cesm2_1_rel_05-Nor_v1.0.2 -- CAM6-Nor version, CMIP6 bit-identical version (if used on fram, and as MM), June 2020
 
+  - cam_cesm2_1_rel_05-Nor_v1.0.3 -- CAM6-Nor version, CMIP6 bit-identical version (if used on fram, and as MM), April 2021
+
+  - cam_cesm2_1_rel_05-Nor_v1.0.4 -- CAM6-Nor version, CMIP6 bit-identical version (if used on fram, and as MM), May 2021
+
 * **cam_cesm2_1_rel_05-Nor-SpAer** - based on cam_cesm2_1_rel_05-Nor, about to contain simple plume aerosol model code
 
 * **cam_cesm2_1_rel_05-Nor_v1.0.2_keyClim-withoutanthraer** - based on cam_cesm2_1_rel_05-Nor (branched off at tag cam_cesm2_1_rel_05-Nor_v1.0.2) : related to version used in project KeyClim for simulation without anthropogenic aerosol (only natural aerosol)
@@ -26,6 +30,8 @@ This repository has the following CAM-Nor branches:
 * **cam-Nor-dev** - based on cam_cesm2_1_rel_05-Nor (branched off at tag cam_cesm2_1_rel_05-Nor_v1.0.2) : post-CMIP6 development version of CAM6-Nor (including bugfixes, new developments, answer-changes modifications, ...)
 
 * **feature-hamocc-vsls** - based on cam_cesm2_1_rel_05-Nor (branched off at tag cam_cesm2_1_rel_05-Nor_v1.0.2) : related to version developed in project KeyClim for simulation of Very Short Lived Spiecies (VSLS) in ocean and atmosphere.  
+
+* **feature-ozone** - based on cam_cesm2_1_rel_05-Nor : related to version under development for simulation of ozone.
 
 ### CAM-Nor and NorESM documentation https://noresm-docs.readthedocs.io/en/noresm2/
 
