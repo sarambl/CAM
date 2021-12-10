@@ -2,6 +2,8 @@
 
 
 ### Todo
+- FInd out how to edit namelists? 
+
 - Check if I can replace  NPFcoag with NorESM2 variant.
 - Can I move aerosect_write2file to aero_model? 
 - 
