@@ -29,9 +29,10 @@ module aero_model
                         , getCloudTracerName
   use condtend, only: N_COND_VAP, COND_VAP_ORG_SV, COND_VAP_ORG_LV, COND_VAP_H2SO4 &
                       , condtend_sub
+  !smb++ sectional add sectional coagulation
   !use koagsub, only: coagtend, clcoag
-  use koagsub,           only: coagtend,clcoag,coagtend_sec!smb++ coagtend_sec
-
+  use koagsub,           only: coagtend,clcoag,coagtend_sec
+  !smb--
   use sox_cldaero_mod, only: sox_cldaero_init
   !use modal_aero_data,only: cnst_name_cw, lptr_so4_cw_amode
   !use modal_aero_data,only: ntot_amode, modename_amode, nspec_max
@@ -168,12 +169,12 @@ contains
   subroutine aero_model_register()
     use aerosoldef, only: aero_register
     use condtend, only: registerCondensation
-    !smb++ sectional
+    !smb++ sectional add methods for initiating
     use aero_sectional, only: aerosect_register, aerosect_init  !
     !smb-- sectional
 
     call aero_register()
-    !smb++ sectional
+    !smb++ sectional register aero sec:
     call aerosect_register() !smb++sectional
     !smb-- sectional
     call registerCondensation()
@@ -203,7 +204,7 @@ contains
     use opttab_lw, only: initopt_lw
 
     use modal_aero_deposition , only: modal_aero_deposition_init
-    !smb++sectional
+    !smb++sectional import div section
     use aero_sectional,     only : secSpecNames, secNrSpec, secNrBins
     integer  ::i,j
     !smb--sectional
@@ -326,11 +327,11 @@ contains
     call addfld ('GR',          (/'lev'/),  'A',        'nm/hour',  'Growth rate, H2SO4+SOA')
     call addfld ('NUCLSOA',     (/'lev'/),  'A',        'kg/kg',    'SOA nucleate')
     call addfld ('ORGNUCL',     (/'lev'/),  'A',        'kg/kg',    'Organic gas available for nucleation')
-      !smb++ sectional
+    !smb++ sectional adding div diagnostics
     call addfld ('NUCLRATE_pbl',(/'lev'/),  'A',        '#/cm3/s',  'Nucleation rate, pbl')
     call addfld ('FORMRATE_pbl',(/'lev'/),  'A',        '#/cm3/s',  'Formation rate of 12nm particles,pbl')
     call addfld ('H2SO4NUCL',   (/'lev'/),  'A',        'kg/kg',    'H2SO4 gas available for nucleation')  ! smb: added for diagnosis of nucleation code
-      ! trace mass leaving sectional scheme for introduction to OsloAero:
+    ! trace mass leaving sectional scheme for introduction to OsloAero:
     call addfld('leaveSecH2SO4',(/'lev'/),  'A',        'kg/kg',    'H2SO4 leaving sectional scheme for SO4_NA')  ! smb: added for diagnosis of nucleation code
     call addfld ('leaveSecSOA', (/'lev'/),  'A',        'kg/kg',    'SOA leaving sectional scheme for SO4_NA')  ! smb: added for diagnosis of nucleation code
     ! Add each bin, species as outfield.
@@ -341,7 +342,7 @@ contains
                 call add_default(trim(field_name),1,' ')
         end do
     end do
-      !smb-- sectional
+    !smb-- sectional
 
     if(history_aerosol)then
        call add_default ('NUCLRATE', 1, ' ')
@@ -400,7 +401,7 @@ end subroutine aero_model_init
     real(r8), dimension(pcols, pver, numberOfProcessModeTracers) :: oslo_wetdens_processmodes
 
     ncol  = state%ncol
-
+    oslo_wetdens(:,:,:) = 0._r8
     call calcaersize_sub( ncol, &
                      state%t, state%q(1,1,1), state%pmid, state%pdel &
                      ,oslo_dgnumwet , oslo_wetdens                  &
@@ -757,7 +758,7 @@ end subroutine aero_model_init
    !Note use of "zm" here. In CAM5.3-implementation "zi" was used.. 
    !zm is passed through the generic interface, and it should not change much
    !to check if "zm" is below boundary layer height instead of zi
-    !smb++ sectional
+    !smb++ sectional call condtend for sectional instead
     !call condtend_sub( lchnk, mmr_tend_pcols, mmr_cond_vap_gasprod,tfld, pmid, &
     !                 pdel, delt, ncol, pblh, zm, qh2o)  !cka
     call condtend_sub_super( lchnk, mmr_tend_pcols, mmr_cond_vap_gasprod,tfld, pmid, &
@@ -769,9 +770,9 @@ end subroutine aero_model_init
    ! droplets moved to after vmrcw is moved into qqcw (in mmr spac)
 
    call coagtend( mmr_tend_pcols, pmid, pdel, tfld, delt_inverse, ncol, lchnk)
-    !smb++ sectional
-    call coagtend_sec( mmr_tend_pcols, pmid, pdel, tfld, delt_inverse, ncol, lchnk)
-    !smb-- sectional
+   !smb++ sectional coagulation for sectional scheme
+   call coagtend_sec( mmr_tend_pcols, pmid, pdel, tfld, delt_inverse, ncol, lchnk)
+   !smb-- sectional
 
    !Convert cloud water to mmr again ==> values in buffer
    call vmr2qqcw( lchnk, vmrcw, mbar, ncol, loffset, pbuf )
