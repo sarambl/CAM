@@ -1,5 +1,5 @@
-BEGSIM 
-  SPECIES
+BEGSIM
+   SPECIES
 
       Solution
  SO2, H2SO4
@@ -14,6 +14,17 @@ BEGSIM
 * based on Paasonen et al. (2010); Taipale et al. (2008). 
  SOA_NA->C10H16O2, SOA_A1->C10H16O2
  SOA_LV ->C10H16O2, SOA_SV->C10H16O2
+* Added sec_species
+ SOA_SEC01->C10H16O2
+ SOA_SEC02->C10H16O2
+ SOA_SEC03->C10H16O2
+ SOA_SEC04->C10H16O2
+ SOA_SEC05->C10H16O2
+ SO4_SEC01->H2SO4
+ SO4_SEC02->H2SO4
+ SO4_SEC03->H2SO4
+ SO4_SEC04->H2SO4
+ SO4_SEC05->H2SO4
  monoterp -> C10H16, isoprene -> C5H8
  H2O
    End Solution
@@ -41,8 +52,10 @@ BEGSIM
         DST_A2, DST_A3
         SS_A1, SS_A2, SS_A3 , H2SO4
         SOA_NA, SOA_A1
-	SOA_LV,SOA_SV, monoterp, isoprene
-        H2O
+	     SOA_LV,SOA_SV, monoterp, isoprene
+	SOA_SEC01,SOA_SEC02,SO4_SEC01,SO4_SEC02
+	SOA_SEC03, SOA_SEC04,SOA_SEC05, SO4_SEC03,SO4_SEC04,SO4_SEC05
+	H2O
       End Implicit
    End Solution Classes
 

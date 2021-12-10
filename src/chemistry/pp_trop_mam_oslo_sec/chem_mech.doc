@@ -1,16 +1,5 @@
   
   
-           |--------------------------------------------------------------------------------------------------|
-           |                                                                                                  |
-           |                                                                                                  |
-           |                              This is a mam-oslo simulation with :                                |
-           |                              (1)  comments to add                                                |
-           |                              (2)  comments to add                                                |
-           |                                                                                                  |
-           |                                                                                                  |
-           |--------------------------------------------------------------------------------------------------|
-  
-  
      Solution species
       (  1)  SO2             
       (  2)  H2SO4           
@@ -39,9 +28,19 @@
       ( 25)  SOA_A1             (C10H16O2)
       ( 26)  SOA_LV             (C10H16O2)
       ( 27)  SOA_SV             (C10H16O2)
-      ( 28)  monoterp           (C10H16)
-      ( 29)  isoprene           (C5H8)
-      ( 30)  H2O             
+      ( 28)  SOA_SEC01          (C10H16O2)
+      ( 29)  SOA_SEC02          (C10H16O2)
+      ( 30)  SOA_SEC03          (C10H16O2)
+      ( 31)  SOA_SEC04          (C10H16O2)
+      ( 32)  SOA_SEC05          (C10H16O2)
+      ( 33)  SO4_SEC01          (H2SO4)
+      ( 34)  SO4_SEC02          (H2SO4)
+      ( 35)  SO4_SEC03          (H2SO4)
+      ( 36)  SO4_SEC04          (H2SO4)
+      ( 37)  SO4_SEC05          (H2SO4)
+      ( 38)  monoterp           (C10H16)
+      ( 39)  isoprene           (C5H8)
+      ( 40)  H2O             
   
   
      Invariant species
@@ -92,7 +91,17 @@ Class List
       ( 27)  SOA_SV          
       ( 28)  monoterp        
       ( 29)  isoprene        
-      ( 30)  H2O             
+      ( 30)  SOA_SEC01       
+      ( 31)  SOA_SEC02       
+      ( 32)  SO4_SEC01       
+      ( 33)  SO4_SEC02       
+      ( 34)  SOA_SEC03       
+      ( 35)  SOA_SEC04       
+      ( 36)  SOA_SEC05       
+      ( 37)  SO4_SEC03       
+      ( 38)  SO4_SEC04       
+      ( 39)  SO4_SEC05       
+      ( 40)  H2O             
   
      Photolysis
   jh2o2            (  1)   H2O2 + hv -> (No products)                                           rate = ** User defined **         (  1)
@@ -157,6 +166,16 @@ Extraneous prod/loss species
     d(SOA_LV)/dt = .029*r6*OH*DMS  + .15*r7*O3*monoterp                                                                 
     d(SOA_SV)/dt = .114*r6*OH*DMS  + .15*r8*OH*monoterp  + .15*r9*NO3*monoterp  + .05*r10*O3*isoprene                   
                     + .05*r11*OH*isoprene  + .05*r12*NO3*isoprene                                                       
+    d(SOA_SEC01)/dt = 0                                                                                                 
+    d(SOA_SEC02)/dt = 0                                                                                                 
+    d(SOA_SEC03)/dt = 0                                                                                                 
+    d(SOA_SEC04)/dt = 0                                                                                                 
+    d(SOA_SEC05)/dt = 0                                                                                                 
+    d(SO4_SEC01)/dt = 0                                                                                                 
+    d(SO4_SEC02)/dt = 0                                                                                                 
+    d(SO4_SEC03)/dt = 0                                                                                                 
+    d(SO4_SEC04)/dt = 0                                                                                                 
+    d(SO4_SEC05)/dt = 0                                                                                                 
     d(monoterp)/dt =  - r7*O3*monoterp  - r8*OH*monoterp  - r9*NO3*monoterp                                             
     d(isoprene)/dt =  - r10*O3*isoprene  - r11*OH*isoprene  - r12*NO3*isoprene                                          
     d(H2O)/dt = r2*OH*H2O2                                                                                              
