@@ -61,3 +61,5 @@ git checkout cam6_2_000
 
 ### CAM6 namelist settings - http://www.cesm.ucar.edu/models/cesm2/settings/current/cam_nml.html
 
+
+### SMB adding VBS
