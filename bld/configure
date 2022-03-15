@@ -1555,6 +1555,12 @@ else {
             $nadv += 5;
             if ($print>=2) { print "Advected constituents added by UNICON: 5$eol"; }
         }
+        #smb++ vbs:
+        #if ($chem_pkg =~ '_oslo') {
+        #    $nadv += 10;
+
+        #}
+
 
     }
 

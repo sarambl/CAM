@@ -1,0 +1,46 @@
+// -*- kpp -*- kpp mode for emacs
+// see example.rpl for details about replacement files
+
+// Authors: Alexandra Tsimpidi 
+
+// replace the comprehensive organic chemistry by mim1:
+#include mim1
+
+// modifications for the ESCiMo base run:
+#include ESCiMo
+
+// O3s diagnostic
+#REPLACE <>
+<G01Diag> O3s            = LO3s        : {%StTrG} k_O3s; {&&1714}
+#ENDREPLACE
+
+#REPLACE <G4500>
+<a>         C5H8    + O3 = .28 HCOOH + .65 MVK + .1 MVKO2  + .1 CH3CO3 + .14 CO + .58 HCHO + .09 H2O2 + .08 CH3O2 + .25 OH + .25 HO2 + 0.0178  LSOG05 + 0.0068 LSOG06 : {%TrG} 7.86E-15*EXP(-1913./temp);     {&1614}
+#ENDREPLACE
+
+#REPLACE <G4501>
+<a>         C5H8    + OH = ISO2 + 0.0178 LSOG05 + 0.0068 LSOG06 : {%TrG}   2.54E-11*EXP(410./temp); {&1614}
+#ENDREPLACE
+
+#REPLACE <>
+<G49TERP1>    LTERP    + OH   = 0.1507 LSOG05 + 0.7312 LSOG06 : {%TrG} 1.8308E-11*EXP(449.38/temp); {&&}
+<G49TERP2>    LTERP    + O3   = 0.1507 LSOG05 + 0.7312 LSOG06 : {%TrG} 1.0805E-15*EXP(-821.26/temp); {&&}
+<G49TERP3>    LTERP    + NO3  = 0.1507 LSOG05 + 0.7312 LSOG06 : {%TrG} 3.6616E-12*EXP(174.62/temp); {&&}
+<G49TERP4>    LTERP    + O1D  = 0.1507 LSOG05 + 0.7312 LSOG06 : {%TrG} 3.2714E-11; {&&}
+<G49ALK1>     LALK4    + OH   = 0.0183 LSOG03 + 0.0000 LSOG04 : {%TrG} 5.9525902E-12*EXP(-90.58/temp); {&&}
+<G49ARO1>     LALK5    + OH   = 0.1070 LSOG03 + 0.0000 LSOG04 : {%TrG} 1.1104831E-11*EXP(-51.83/temp); {&&}
+<G49ARO1>     LARO1    + OH   = 0.1126 LSOG03 + 0.4923 LSOG04 : {%TrG} 1.8107719E-12*EXP(354.77/temp); {&&}
+<G49ARO2>     LARO2    + OH   = 0.1493 LSOG03 + 0.5584 LSOG04 : {%TrG} 2.6411801E-11*EXP(0.00/temp); {&&}
+<G49OLE1>     LOLE1    + OH   = 0.0021 LSOG03    + 0.772 LSOG04 : {%TrG} 7.1030849E-12*EXP(451.39/temp); {&&}
+<G49OLE2>     LOLE1    + NO3  = 0.0021 LSOG03 + 0.772 LSOG04 : {%TrG} 4.4519529E-14*EXP(-375.91/temp); {&&}
+<G49OLE3>     LOLE1    + O1D  = 0.0021 LSOG03 + 0.772 LSOG04 : {%TrG} 1.0704724E-11*EXP(-234.00/temp); {&&}
+<G49OLE4>     LOLE2    + OH   = 0.0152 LSOG03 + 0.1859 LSOG04 : {%TrG} 1.7407701E-11*EXP(384.46/temp); {&&}
+<G49OLE5>     LOLE2    + O3   = 0.0152 LSOG03 + 0.1859 LSOG04 : {%TrG} 5.0221891E-16*EXP(-461.45/temp); {&&}
+<G49OLE6>     LOLE2    + NO3  = 0.0152 LSOG03 + 0.1859 LSOG04 : {%TrG} 7.2628560E-13*EXP(0.00/temp); {&&}
+<G49OLE7>     LOLE2    + O1D  = 0.0152 LSOG03 + 0.1859 LSOG04 : {%TrG} 2.0909145E-11; {&&}
+<G49POG2>     LPOG02  + OH   = 1.225  LSOG01  : {%TrG} 1.33E-11; {&&}
+<G49POG3>     LPOG03  + OH   = 1.225  LSOG02  : {%TrG} 1.33E-11; {&&}
+# smb++ CHEMICAL AGING OF SOA (but what about LSOG03-LSOG02?
+<G49SOG2>     LSOG02 + OH  = 1.225  LSOG01  : {%TrG} 1.33E-11; {&&}
+<G49SOG4>     LSOG04  + OH  = 1.225  LSOG03   : {%TrG} 0.33E-11; {&&}
+#ENDREPLACE

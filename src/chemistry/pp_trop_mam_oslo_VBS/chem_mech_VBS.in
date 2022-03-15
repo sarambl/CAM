@@ -1,0 +1,198 @@
+*BEGSIM
+  SPECIES
+
+      Solution
+ SO2, H2SO4
+ DMS -> CH3SCH3, H2O2
+ SO4_NA->H2SO4, SO4_A1->H2SO4, SO4_A2->NH4HSO4
+ SO4_AC->H2SO4, SO4_PR->H2SO4, BC_N->C
+ BC_AX->C, BC_NI->C, BC_A->C, BC_AI->C 
+ BC_AC->C, OM_NI->C, OM_AI->C, OM_AC->C
+ DST_A2->AlSiO5, DST_A3->AlSiO5
+ SS_A1->NaCl, SS_A2->NaCl, SS_A3->NaCl
+* Approximate soa species with those of monoterpene oxidation products
+* based on Paasonen et al. (2010); Taipale et al. (2008). 
+ SOA_NA->C10H16O2, SOA_A1->C10H16O2
+* SOA_LV ->C10H16O2, SOA_SV->C10H16O2
+ SOA_SV->C10H16O2
+ ELVOC ->  C10H16O2
+ monoterp -> C10H16, isoprene -> C5H8
+ H2O
+ * smb add for VBS
+ * benzene*, toluene
+ ARO1 -> C6H6
+ * Trimethyl benzenes, xylene*, other aromatics
+ ARO2 -> C8H10
+ * Pentanes*
+ ALK4 -> C5H12
+ * Hexanes, other higher alkenes
+ ALK5 -> C6H14
+ * Propene
+ OLE1 -> C3H6
+ * Other alkenes
+ OLE2 -> C12H24
+ * from S/IVOCs with C*=0.01 μg/m3
+ SOG01-> C15H24O4
+ * from S/IVOCs with C*=10 μg/m3
+ SOG02-> C15H24O4
+ * from anthropogenic VOCs with C*=1 μg/m3
+ SOG03-> C10H16O2
+ * from anthropogenic VOCs with C*=1000 μg/m3
+ SOG04-> C10H16O2
+ * from biogenic VOCs with C*=1 μg/m3
+ SOG05-> C10H16O2
+ * from biogenic VOCs with C*=1000 μg/m3
+ SOG06-> C10H16O2
+ * some gas phase version of OM
+ POG01-> C15H24O4
+ POG02-> C15H24O4
+ * some gas phase version of OM
+ POG03-> C15H24O4
+
+ SOA00-> C10H16O2
+ SOA01-> C15H24O4
+ SOA02-> C15H24O4
+ SOA03-> C10H16O2
+ SOA04-> C10H16O2
+ SOA05-> C10H16O2
+ SOA06-> C10H16O2
+ POA01-> C15H24O4
+ POA02-> C15H24O4
+ POA03-> C15H24O4
+
+   End Solution
+
+      Fixed
+ M, N2, O2, O3, OH, NO3, HO2
+      End Fixed
+
+      Col-int
+ O3 = 0.
+ O2 = 0.
+      End Col-int
+
+   End SPECIES
+
+   Solution Classes
+      Explicit
+      End Explicit
+      Implicit
+        DMS, SO2, H2O2
+        SO4_NA, SO4_A1, SO4_A2
+        SO4_AC, SO4_PR, BC_N
+        BC_AX, BC_NI, BC_A, BC_AI 
+        BC_AC, OM_NI, OM_AI, OM_AC
+        DST_A2, DST_A3
+        SS_A1, SS_A2, SS_A3 , H2SO4
+        SOA_NA, SOA_A1
+*	    SOA_LV,SOA_SV
+        SOA_SV
+	    ELVOC
+	    monoterp, isoprene
+        H2O
+        *smb++
+        ARO1,ARO2,ALK4,ALK5,OLE1,OLE2
+        SOG01, SOG02, SOG03, SOG04,SOG05,SOG06
+        SOA00
+        SOA01, SOA02, SOA03, SOA04,SOA05,SOA06
+        POG01, POG02, POG03
+        POA01,POA02, POA03
+        *smb--
+      End Implicit
+   End Solution Classes
+
+ CHEMISTRY
+      Photolysis
+ [jh2o2]    H2O2 + hv ->
+      End Photolysis
+
+      Reactions
+ [usr_HO2_HO2] HO2 + HO2 -> H2O2
+               H2O2 + OH -> H2O + HO2                                           ; 2.9e-12, -160
+               DMS + OH -> SO2                                                  ; 9.6e-12, -234.
+               DMS + NO3 -> SO2 + HNO3                                          ; 1.9e-13,  520.
+               SO2 + OH + M -> H2SO4 + M                                      ; 3.0e-31, 3.3, 1.5e-12, 0.0, 0.6
+* SOA has MW=168, and MSA=96, so to get correct MSA mass ==> factor of 96/168 = 0.57
+* Then account for 0.25 which is 0.25 MSA molec per DMS molec (the other 0.75 goes to SO2)
+* Then 0.2 assumed yield for SOA_LV and 0.8 assumed  yield for SOA_SV gives the coefficients below
+* reaction rate from Chin et al 1996, JGR, vol 101, no D13
+* 
+* [usr_DMS_OH]  DMS + OH -> .75 * SO2 + .5 * HO2 + 0.029*SOA_LV + 0.114*SOA_SV
+ [usr_DMS_OH]  DMS + OH -> .75 * SO2 + .5 * HO2 + 0.029*ELVOC + 0.114*SOG05
+*
+*cka: added organic vapor oxidation with constants from IUPAC below
+*     Assume a  yield of 15% for SOA LV production from these reactions
+*     Assume a  yield of 15 % for monoterpene and 5% for isoprene SOA SV production reactions
+*     SOA_LV: very low volatility, can nucleate or grow small particles (oxidation products from O3+monoterp)
+*     SOA_SV: rest of SOA formed
+*	       monoterp + O3 -> .15*SOA_LV 			; 8.05e-16, -640.
+*	       monoterp + OH -> .15*SOA_SV			    ; 1.2e-11, 440.
+*	       monoterp + NO3 -> .15*SOA_SV			; 1.2e-12, 490.
+*	       isoprene + O3 -> .05*SOA_SV			    ; 1.03e-14, -1995.
+*	       isoprene + OH -> .05*SOA_SV 			; 2.7e-11, 390.
+*	       isoprene + NO3 -> .05*SOA_SV 			; 3.15e-12, -450.
+
+* smb:++ add reactions:
+            isoprene    + O3   =  0.0178  *SOG05  + 0.0068  *SOG06  ; 7.86E-15,      -1913
+            isoprene    + OH   =  0.0178  *SOG05  + 0.0068  *SOG06  ; 2.54E-11,      410.
+            monoterp    + OH   =  0.1507  *SOG05  + 0.7312  *SOG06  ; 1.8308E-11,    449.38
+            monoterp    + O3   =  0.1507  *SOG05  + 0.07535 *ELVOC  ; 1.0805E-15,    -821.26
+            monoterp    + NO3  =  0.1507  *SOG05  + 0.7312  *SOG06  ; 3.6616E-12,    174.62
+*           monoterp    + O1D  =  0.1507  *SOG05  + 0.7312  *SOG06  ; 3.2714E-11
+            ALK4        + OH   =  0.0183  *SOG03  + 0.0000  *SOG04  ; 5.9525902E-12, -90.58
+            ALK5        + OH   =  0.1070  *SOG03  + 0.0000  *SOG04  ; 1.1104831E-11, -51.83
+            ARO1        + OH   =  0.1126  *SOG03  + 0.4923  *SOG04  ; 1.8107719E-12, 354.77
+            ARO2        + OH   =  0.1493  *SOG03  + 0.5584  *SOG04  ; 2.6411801E-11, 0.00
+            OLE1        + OH   =  0.0021  *SOG03  + 0.772   *SOG04  ; 7.1030849E-12, 451.39
+            OLE1        + NO3  =  0.0021  *SOG03  + 0.772   *SOG04  ; 4.4519529E-14, -375.91
+*           OLE1        + O1D  =  0.0021  *SOG03  + 0.772   *SOG04  ; 1.0704724E-11, -234.00
+            OLE2        + OH   =  0.0152  *SOG03  + 0.1859  *SOG04  ; 1.7407701E-11, 384.46
+            OLE2        + O3   =  0.0152  *SOG03  + 0.1859  *SOG04  ; 5.0221891E-16, -461.45
+            OLE2        + NO3  =  0.0152  *SOG03  + 0.1859  *SOG04  ; 7.2628560E-13, 0.00
+*           OLE2        + O1D  =  0.0152  *SOG03  + 0.1859  *SOG04  ; 2.0909145E-11
+            POG02       + OH   =  1.225   *SOG01                    ; 1.33E-11
+            POG03       + OH   =  1.225   *SOG02                    ; 1.33E-11
+            SOG02       + OH   =  1.225   *SOG01                    ; 1.33E-11
+            SOG04       + OH   =  1.225   *SOG03                    ; 0.33E-11
+
+
+      End Reactions
+
+      Heterogeneous
+          H2O2, SO2
+      End Heterogeneous
+
+      Ext Forcing
+          SO2 <- dataset
+          BC_NI <-dataset
+          BC_AX <-dataset
+          BC_N <-dataset
+          OM_NI <-dataset
+          SO4_PR <-dataset
+          H2O <- dataset
+          *smb++
+          ARO1 <- dataset
+          ARO2 <- dataset
+          ALK4 <- dataset
+          ALK5 <- dataset
+          OLE1 <- dataset
+          OLE2 <- dataset
+          *smb--
+      End Ext Forcing
+
+   END CHEMISTRY
+
+   SIMULATION PARAMETERS
+
+     Version Options
+        model   = cam
+        machine = intel
+        architecture = hybrid
+        vec_ftns  = on
+        multitask = on
+        namemod = on
+        modules = on
+     End Version Options
+
+   END SIMULATION PARAMETERS
+ENDSIM

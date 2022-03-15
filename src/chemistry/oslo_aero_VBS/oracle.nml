@@ -1,0 +1,69 @@
+! -*- f90 -*-                   
+! DESCRIPTION
+! -----------
+! oracle NAMELIST
+!
+! AUTHOR
+! ------
+! Alexandra Tsimpidi,  Forschungzentrum Juelich, IEK-8:Troposphere, Germany
+!
+&CTRL
+                                 ! <--- ORACLE general options
+NPOA    = 3,                    !number of Primary OA species from Fossil Fuel emissions
+NSOA    = 6,                    !number of Secondary OA species from the oxidation of traditional biogenic VOCs
+NSOAP    = 9,                   !sum of NfPOA,NbbPOA,NfSOAsv,NbbSOAsv,NfSOAiv,NbbSOAiv,NbSOAv,NbOSOAv,NaSOAv,NaOSOAv
+aermod   ='gmxe',                !aerosol module for inorganic aerosols : ue "oracle" for its own distribution
+nmode    = 1,                    !number of modes used for organic aerosols (1 to 3)
+tmode(1) = 3                 !type of modes (2=KS, 3=AS, 4=CS)
+!tmode(2) = 3                !type of modes (2=KS, 3=AS, 4=CS)
+!tmode(3) = 4                !type of modes (2=KS, 3=AS, 4=CS)
+
+mwsoap   (1:3) = 250.d0,250.d0,250.d0, !mwsoap(1:NPOA)   : molecular weights of POG/POA species (g/mol)
+csat     (1:3) = 1.d-2, 1.d1, 1.d4,    !csat(1:NPOA)     : saturation concentrations of POG/POA species (ug/m3)
+cstemp   (1:3) = 300.d0,300.d0,300.d0, !cstemp(1:NPOA)   : temperatures corresponding to csat
+deltah   (1:3) = 112.d3,94.d3, 76.d3,  !deltah(1:NPOA)   : enthalpy of vaporization of POG/POA species (kJ/mol)
+flagsoap (1:3) = 1,1,1,                           !flagsoap(1:NPOA) : set to 1 if POG/POA species forms solutions; 0 if not
+ 
+mwsoap   (4:9) = 250.d0 , 250.d0,   150.d0, 150.d0, 180.d0, 180.d0,   !mwsoap(n11:n12)   : molecular weights of SOG/SOA species (g/mol)
+csat     (4:9) =   1.d-2,   1.d1,     1.d0,   1.d3,   1.d0,   1.d3,   !csat(n11:n12)     : saturation concentrations of SOG/SOA species (ug/m3)
+cstemp   (4:9) = 300.d0 , 300.d0,   300.d0, 300.d0, 300.d0, 300.d0,   !cstemp(n11:n12)   : temperatures corresponding to csat
+deltah   (4:9) = 112.d3 ,  94.d3,    30.d3,  30.d3,  30.d3,  30.d3,   !deltah(n11:n12)   : enthalpy of vaporization of SOG/SOA species (kJ/mol)
+flagsoap (4:9) =      1 ,      1,        1,      1,      1,      1,   !flagsoap(n11:n12) : set to 1 if SOG/SOA species forms solutions; 0 if not
+/
+
+&CPL
+!name of emission channel
+Cemis_channel = 'onemis',               ! onlem
+!names of organic carbon channel elements
+!
+! emission setup (new way)
+! for each emission flux one EMIS_CASK should be filled
+! all possible fluxes are listed in the messy_ORACLE_e5.f90
+! in the subroutine ORACLE_emis_e5_init
+! certain characteristics of the fluxes are defined there as well
+! emis_casks - array: 
+!                    1st entry: name (used for identification in the 
+!                               list of the e5 file section emis_init)
+!                    2nd entry: total scaling factor for incoming flux
+!                    3rd entry: channel name of the emission flux
+!                    4th entry: name of the mass emission flux object
+!                    5th entry: name of the corresponding number 
+!                               emission flux object (If it does not exist a 
+!                               number is calculated from the mass)
+!                    6th entry: ";" separated list of tracers which should 
+!                               receive emissions from this flux
+!                    7th entry: ";" separated list of fractions of this emission
+!                               flux for all the tracers defined in entry 5
+! WARNING: In case the 1st entry from a cask is not matching any of the fluxes in the list
+!          it is ignored
+!
+!-----------------
+! ORGANIC CARBON 
+!-----------------
+! 
+! CAMS
+ EMIS_CASK(1,:)= "oc_mass_ff_ks"  ,"1.3","offemis" ,"CAMS_ANTH_OC_flux"   ,""            ,"POA01_ks;POA02_ks;LPOG03","0.09;0.71;1.7"
+! bioburn
+ EMIS_CASK(3,:)= "oc_mass_bb_ks"  ,"1.6","bioburn_gp"    ,"OC_flux"    ,""            ,"POA01_ks;POA02_ks;LPOG03","0.2;0.5;0.3"
+!-----------------
+/

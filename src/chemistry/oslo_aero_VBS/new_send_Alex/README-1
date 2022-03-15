@@ -1,0 +1,16 @@
+#Emission Inventory for 2000, 2005, 2010 and 2020 from RCP45 scenario
+#Version 1.0 Date:7/11/2013, Created by Tsimpidi Alexanda and Karydis Vlassis
+# Initial Source Emissions: http://eccad.sedoo.fr/eccad_extract_interface/JSF/page_login.jsf
+# VOC Species grouped in lumped species:
+
+#Lumped Species      MW                   VOC Species
+
+     ARO1          100.47              Benzene, Toluene
+     ARO2          113.93     Trimethyl_Benzenes, Xylene, Other_Aromatics 
+     ALK4          73.23                   Pentanes
+     ALK5          106.97            Hexanes_and_higher_alkanes
+     OLE1          61.68                   Propene
+     OLE2          79.05           Other_alkenes_and_alkynes
+     TERP          136.24
+     C5H8          68.13
+

@@ -275,11 +275,11 @@ end subroutine clddiag
 ! This is the CAM5 version of wetdepa.
 
 subroutine wetdepa_v2(                                  &
-   p, q, pdel, cldt, cldc,                              &
-   cmfdqr, evapc, conicw, precs, conds,                 &
-   evaps, cwat, tracer, deltat, scavt,                  &
-   iscavt, cldvcu, cldvst, dlf, fracis,                 &
-   sol_fact, ncol, scavcoef, is_strat_cloudborne, qqcw, &
+   p, q, pdel, cldt, cldc,                              & !1
+   cmfdqr, evapc, conicw, precs, conds,                 & !2
+   evaps, cwat, tracer, deltat, scavt,                  & !3
+   iscavt, cldvcu, cldvst, dlf, fracis,                 & !4
+   sol_fact, ncol, scavcoef, is_strat_cloudborne, qqcw, & !5
    f_act_conv, icscavt, isscavt, bcscavt, bsscavt,      &
    convproc_do_aer, rcscavt, rsscavt,                   &
    sol_facti_in, sol_factic_in )
