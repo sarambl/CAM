@@ -367,6 +367,8 @@
       <value compset="SSP370REFGHGLOWNTCF_CAM60%NORESM%FRC2"  >ssp370refghglowntcf_cam6_noresm_frc2</value>
       <value compset="SSP585_CAM60%NORESM%FRC2"  >ssp585_cam6_noresm_frc2</value>
       <value compset="SSP585_CAM60%NORESM%FRC2EXT"  >ssp585_cam6_noresm_frc2ext</value>
+      <value compset="SSP534_CAM60%NORESM%FRC2"  >ssp534_cam6_noresm_frc2</value>
+      <value compset="SSP534_CAM60%NORESM%FRC2EXT"  >ssp534_cam6_noresm_frc2ext</value>
 
       <value compset="SSP370_CAM60%NORESM%NORBC%FRC2"  >ssp370_cam6_noresm_frc2</value>
       <value compset="SSP370_CAM60%NORESM%NORBC%AERLOW%FRC2"  >ssp370_cam6_noresm_aerlow_frc2</value>
@@ -382,6 +384,10 @@
       <value compset="SSP245_CAM60%NORESM%NORPIBC%NATONLY%FRC2"  >ssp245_cam6_noresm_natonly_frc2</value>
       <value compset="SSP245_CAM60%NORESM%NORPIBC%AERONLY%FRC2"  >ssp245_cam6_noresm_aeronly_frc2</value>
       <value compset="SSP245_CAM60%NORESM%NORPIBC%AEROXIDONLY%FRC2"  >ssp245_cam6_noresm_aeroxidonly_frc2</value>
+
+      <!-- NorESM emissions driven SSP compsets -->
+      <value compset="SSP585_CAM60%NORESM%FRC2.*_BGC%BPRPDMS">ssp585esm_cam6_noresm_frc2</value>
+      <value compset="SSP534_CAM60%NORESM%FRC2.*_BGC%BPRPDMS">ssp534esm_cam6_noresm_frc2</value>
 
       <value compset="_CAM50%NUDGEPTAERO" >2000_cam5_oslonudge</value>
       <value compset="_CAM50%NUDGEPTAEROUPD1">cam5_nudge_ptaero_up1</value>
