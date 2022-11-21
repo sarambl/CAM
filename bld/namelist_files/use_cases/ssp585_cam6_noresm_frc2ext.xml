@@ -51,7 +51,7 @@
 
 <!-- 3D emissions -->
 <ext_frc_specifier hgrid="0.9x1.25">
-  'H2O ->  $INPUTDATA_ROOT/atm/cam/chem/emis/elev/H2OemissionCH4oxidationx2_3D_L70_2014-2101_CMIP6-SSP5-8.5_c190307.nc',
+  'H2O ->  $INPUTDATA_ROOT/noresm-only/atm/cam/chem/emis/elev/H2OemissionCH4oxidationx2_3D_L70_2100_date2100_CMIP6-SSP5-8.5_c190307.nc',
   'BC_AX  ->  $INPUTDATA_ROOT/atm/cam/chem/emis/cmip6_emissions_version20190808/emissions_cmip6_noresm2_ScenarioMIP_IAMC-REMIND-MAGPIE-ssp585-1-1_BC_AX_all_vertical_2014-2301_0.9x1.25_version20190808.nc',
   'BC_N   ->  $INPUTDATA_ROOT/atm/cam/chem/emis/cmip6_emissions_version20190808/emissions_cmip6_noresm2_ScenarioMIP_IAMC-REMIND-MAGPIE-ssp585-1-1_BC_N_all_vertical_2014-2301_0.9x1.25_version20190808.nc',
   'BC_NI  ->  $INPUTDATA_ROOT/atm/cam/chem/emis/cmip6_emissions_version20190808/emissions_cmip6_noresm2_ScenarioMIP_IAMC-REMIND-MAGPIE-ssp585-1-1_BC_NI_all_vertical_2014-2301_0.9x1.25_version20190808.nc',
