@@ -23,6 +23,8 @@ This repository has the following CAM-Nor branches:
 
   - cam_cesm2_1_rel_05-Nor_v1.0.4 -- CAM6-Nor version, CMIP6 bit-identical version (if used on fram, and as MM), May 2021
 
+  - cam_cesm2_1_rel_05-Nor_v1.0.5 -- CAM6-Nor version, CMIP6 bit-identical version (if used on fram, and as MM), December 2022
+
 * **cam_cesm2_1_rel_05-Nor-SpAer** - based on cam_cesm2_1_rel_05-Nor, about to contain simple plume aerosol model code
 
 * **cam_cesm2_1_rel_05-Nor_v1.0.2_keyClim-withoutanthraer** - based on cam_cesm2_1_rel_05-Nor (branched off at tag cam_cesm2_1_rel_05-Nor_v1.0.2) : related to version used in project KeyClim for simulation without anthropogenic aerosol (only natural aerosol)
