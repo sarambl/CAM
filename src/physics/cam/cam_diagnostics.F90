@@ -78,17 +78,17 @@ logical          :: history_waccm                  ! outputs typically used for 
 
 ! Physics buffer indices
 
-integer  ::      psl_idx    = 0 
-integer  ::      relhum_idx = 0 
-integer  ::      qcwat_idx  = 0 
-integer  ::      tcwat_idx  = 0 
-integer  ::      lcwat_idx  = 0 
-integer  ::      cld_idx    = 0 
-integer  ::      concld_idx = 0 
-integer  ::      tke_idx    = 0 
-integer  ::      kvm_idx    = 0 
-integer  ::      kvh_idx    = 0 
-integer  ::      cush_idx   = 0 
+integer  ::      psl_idx    = 0
+integer  ::      relhum_idx = 0
+integer  ::      qcwat_idx  = 0
+integer  ::      tcwat_idx  = 0
+integer  ::      lcwat_idx  = 0
+integer  ::      cld_idx    = 0
+integer  ::      concld_idx = 0
+integer  ::      tke_idx    = 0
+integer  ::      kvm_idx    = 0
+integer  ::      kvh_idx    = 0
+integer  ::      cush_idx   = 0
 integer  ::      t_ttend_idx = 0
 
 integer  ::      prec_dp_idx  = 0
@@ -166,7 +166,7 @@ contains
   end subroutine diag_register
 
 !==============================================================================
-  
+
   subroutine diag_init_dry(pbuf2d)
     ! Declare the history fields for which this module contains outfld calls.
 
@@ -341,7 +341,7 @@ contains
       ! State after physics (FV)
       call add_default ('TAP     '  , history_budget_histfile_num, ' ')
       call add_default ('UAP     '  , history_budget_histfile_num, ' ')
-      call add_default ('VAP     '  , history_budget_histfile_num, ' ')  
+      call add_default ('VAP     '  , history_budget_histfile_num, ' ')
       call add_default (apcnst(1)   , history_budget_histfile_num, ' ')
       if ( dycore_is('LR') .or. dycore_is('SE') ) then
         call add_default ('TFIX    '    , history_budget_histfile_num, ' ')
@@ -1956,8 +1956,8 @@ contains
 
 !#######################################################################
 
- !subroutine diag_phys_tend_writeout_dry(state, pbuf,  tend, ztodt)
-  subroutine diag_phys_tend_writeout_dry(state, pbuf, tend, ztodt, tmp_t, eflx, dsema) !tht
+ !subroutine diag_phys_tend_writeout_dry(state, pbuf, tend, ztodt)
+  subroutine diag_phys_tend_writeout_dry(state, pbuf, tend, ztodt, eflx, dsema, tmp_t) !tht
 
     !---------------------------------------------------------------
     !
@@ -1976,9 +1976,9 @@ contains
     type(physics_tend ), intent(in)    :: tend
     real(r8),            intent(in)    :: ztodt             ! physics timestep
 
-    real(r8)           , intent(inout) :: tmp_t     (pcols,pver) !tht: holds last physics_updated T (FV)
-    real(r8)           , intent(in), optional ::eflx (pcols    ) !tht: surface sensible heat flux assoc.with mass adj.
-    real(r8)           , intent(in), optional ::dsema(pcols    ) !tht: column enthalpy tendency assoc. with mass adj.
+    real(r8)           , intent(in),    optional :: eflx (pcols)      !tht: surface sensible heat flux assoc.with mass adj.
+    real(r8)           , intent(in),    optional :: dsema(pcols)      !tht: column enthalpy tendency assoc. with mass adj.
+    real(r8)           , intent(inout), optional :: tmp_t(pcols,pver) !tht: holds last physics_updated T (FV)
 
     !---------------------------Local workspace-----------------------------
 
@@ -2005,10 +2005,16 @@ contains
 
     !tht: heat tendencies from dme_adjust
     if (dycore_is('LR')) then
-      tmp_t(:ncol,:pver) = (state%t(:ncol,:pver) - tmp_t(:ncol,:pver))/ztodt ! T tendency
-      call outfld('PTTEND_DME', tmp_t, pcols, lchnk   )
-      if(present(dsema))call outfld('IETEND_DME', dsema, pcols, lchnk)       ! dry enthalpy
-      if(present(eflx) )call outfld('EFLX'      ,  eflx, pcols, lchnk)       ! moist enthalpy
+      if (present(tmp_t)) then
+        tmp_t(:ncol,:pver) = (state%t(:ncol,:pver) - tmp_t(:ncol,:pver))/ztodt ! T tendency
+        call outfld('PTTEND_DME', tmp_t, pcols, lchnk   )
+      end if
+      if(present(dsema)) then
+        call outfld('IETEND_DME', dsema, pcols, lchnk)       ! dry enthalpy
+      end if
+      if(present(eflx) ) then
+        call outfld('EFLX'      ,  eflx, pcols, lchnk)       ! moist enthalpy
+      end if
     end if
 
     ! Total physics tendency for Temperature
@@ -2148,9 +2154,9 @@ contains
 
 !#######################################################################
 
-  subroutine diag_phys_tend_writeout(state, pbuf,  tend, ztodt,               &
- !     tmp_q, tmp_cldliq, tmp_cldice, qini, cldliqini, cldiceini)
-       tmp_q, tmp_t, tmp_cldliq, tmp_cldice, qini, cldliqini, cldiceini, eflx, dsema) !+tht
+  subroutine diag_phys_tend_writeout(state, pbuf,  tend, ztodt,  &
+      !tmp_q, tmp_cldliq, tmp_cldice, qini, cldliqini, cldiceini)
+       tmp_q, tmp_cldliq, tmp_cldice, qini, cldliqini, cldiceini, eflx, dsema, tmp_t) !+tht
 
     !---------------------------------------------------------------
     !
@@ -2166,19 +2172,18 @@ contains
     type(physics_tend ), intent(in)    :: tend
     real(r8),            intent(in)    :: ztodt                  ! physics timestep
     real(r8)           , intent(inout) :: tmp_q     (pcols,pver) ! As input, holds pre-adjusted tracers (FV)
-    real(r8)           , intent(inout) :: tmp_t     (pcols,pver) !tht: holds last physics_updated T (FV)
     real(r8),            intent(inout) :: tmp_cldliq(pcols,pver) ! As input, holds pre-adjusted tracers (FV)
     real(r8),            intent(inout) :: tmp_cldice(pcols,pver) ! As input, holds pre-adjusted tracers (FV)
     real(r8),            intent(in)    :: qini      (pcols,pver) ! tracer fields at beginning of physics
     real(r8),            intent(in)    :: cldliqini (pcols,pver) ! tracer fields at beginning of physics
     real(r8),            intent(in)    :: cldiceini (pcols,pver) ! tracer fields at beginning of physics
-    real(r8)           , intent(in), optional ::eflx (pcols    ) !tht: surface sensible heat flux assoc.with mass adj.
-    real(r8)           , intent(in), optional ::dsema(pcols    ) !tht: column enthalpy tendency assoc. with mass adj.
-
+    real(r8)           , intent(in),    optional :: eflx (pcols)      !tht: surface sensible heat flux assoc.with mass adj.
+    real(r8)           , intent(in),    optional :: dsema(pcols)      !tht: column enthalpy tendency assoc. with mass adj.
+    real(r8)           , intent(inout), optional :: tmp_t(pcols,pver) !tht: holds last physics_updated T (FV)
     !-----------------------------------------------------------------------
 
    !call diag_phys_tend_writeout_dry(state, pbuf, tend, ztodt)
-    call diag_phys_tend_writeout_dry(state, pbuf, tend, ztodt, tmp_t, eflx, dsema) !tht
+    call diag_phys_tend_writeout_dry(state, pbuf, tend, ztodt, eflx=eflx, dsema=dsema, tmp_t=tmp_t) !tht
     if (moist_physics) then
       call diag_phys_tend_writeout_moist(state, pbuf,  tend, ztodt,           &
            tmp_q, tmp_cldliq, tmp_cldice, qini, cldliqini, cldiceini)
