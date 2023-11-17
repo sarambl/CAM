@@ -749,6 +749,93 @@
       </values>
     </entry>
 
+    <entry id="SSTICE_DATA_FILENAME">
+      <values match ="last">
+        <value compset="DOCN%DOM"                  grid="a%T31.*_oi%T31"             >$DIN_LOC_ROOT/atm/cam/sst/sst_HadOIBl_bc_48x96_clim_c050526.nc</value>
+        <value compset="DOCN%DOM"                  grid="a%1.9x2.5.*_oi%1.9x2.5"     >$DIN_LOC_ROOT/atm/cam/sst/sst_HadOIBl_bc_1.9x2.5_clim_c061031.nc</value>
+        <value compset="DOCN%DOM"                  grid="a%0.9x1.25.*_oi%0.9x1.25"   >$DIN_LOC_ROOT/atm/cam/sst/sst_HadOIBl_bc_0.9x1.25_clim_c040926.nc</value>
+        <value compset="DOCN%DOM"                  grid="a%0.47x0.63.*_oi%0.47x0.63" >$DIN_LOC_ROOT/atm/cam/sst/sst_HadOIBl_bc_0.47x0.63_clim_c061106.nc</value>
+        <value compset="DOCN%DOM"                  grid="a%0.23x0.31.*_oi%0.23x0.31" >$DIN_LOC_ROOT/atm/cam/sst/sst_HadOIBl_bc_0.23x0.31_clim_c110526.nc</value>
+
+        <value compset="(HIST_|20TR_|5505_|TSCH)"  grid=".+"                         >$DIN_LOC_ROOT/atm/cam/sst/sst_HadOIBl_bc_1x1_1850_2017_c180507.nc</value>
+        <value compset="(HIST_|20TR_|5505_|TSCH)"  grid="a%T31.*_oi%T31"             >$DIN_LOC_ROOT/atm/cam/sst/sst_HadOIBl_bc_48x96_1850_2017_c180507.nc</value>
+        <value compset="(HIST_|20TR_|5505_|TSCH)"  grid="a%1.9x2.5.*_oi%1.9x2.5"     >$DIN_LOC_ROOT/atm/cam/sst/sst_HadOIBl_bc_1.9x2.5_1850_2017_c180507.nc</value>
+        <value compset="(HIST_|20TR_|5505_|TSCH)"  grid="a%0.9x1.25.*_oi%0.9x1.25"   >$DIN_LOC_ROOT/atm/cam/sst/sst_HadOIBl_bc_0.9x1.25_1850_2017_c180507.nc</value>
+        <value compset="(HIST_|20TR_|5505_|TSCH)"  grid="a%0.47x0.63.*_oi%0.47x0.63" >$DIN_LOC_ROOT/atm/cam/sst/sst_HadOIBl_bc_0.47x0.63_1850_2017_c180507.nc</value>
+        <value compset="(HIST_|20TR_|5505_|TSCH)"  grid="a%0.23x0.31.*_oi%0.23x0.31" >$DIN_LOC_ROOT/atm/cam/sst/sst_HadOIBl_bc_0.23x0.31_1850_2017_c180507.nc</value>
+
+        <!-- fSST : evolving NorESM derived -->
+        <value compset="HIST_CAM60%NORESM%NORBC"   grid=".+"                         >$DIN_LOC_ROOT/noresm-only/atm/cam/sst/fice-micom-divocn_sst-micom-dow_NHIST_f19_tn14_20190625_1849-2015_series_version20190726_ts.nc</value>
+        <value compset="SSP370_CAM60%NORESM%NORBC" grid=".+"                         >$DIN_LOC_ROOT/noresm-only/atm/cam/sst/fice-micom-divocn_sst-micom-dow_NSSP370frc2_f19_tn14_20191014_2014-2101_series_version20200109_ts.nc</value>
+
+        <value compset="1850_"                     grid=".+"                         >$DIN_LOC_ROOT/atm/cam/sst/sst_HadOIBl_bc_1x1_clim_pi_c101029.nc</value>
+        <value compset="1850_"                     grid="a%T31.*_oi%T31"             >$DIN_LOC_ROOT/atm/cam/sst/sst_HadOIBl_bc_48x96_clim_pi_c101028.nc</value>
+        <value compset="1850_"                     grid="a%1.9x2.5.*_oi%1.9x2.5"     >$DIN_LOC_ROOT/atm/cam/sst/sst_HadOIBl_bc_1.9x2.5_clim_pi_c101028.nc</value>
+        <value compset="1850_"                     grid="a%0.9x1.25.*_oi%0.9x1.25"   >$DIN_LOC_ROOT/atm/cam/sst/sst_HadOIBl_bc_0.9x1.25_clim_pi_c101028.nc</value>
+        <value compset="1850_"                     grid="a%0.47x0.63.*_oi%0.47x0.63" >$DIN_LOC_ROOT/atm/cam/sst/sst_HadOIBl_bc_0.47x0.63_clim_pi_c101028.nc</value>
+        <value compset="1850_"                     grid="a%0.23x0.31.*_oi%0.23x0.31" >$DIN_LOC_ROOT/atm/cam/sst/sst_HadOIBl_bc_0.23x0.31_clim_pi_c101028.nc</value>
+
+        <!-- fSST : constant preindustrial NorESM derived -->
+        <value compset="1850_CAM60%NORESM%NORBC"   grid="a%0.9x1.25"                 >$DIN_LOC_ROOT/noresm-only/atm/cam/sst/fice-micom-divocn_sst-micom-dow_N1850frc2_f09_tn14_20191012_1351-1380_series_version20200106_clim.nc</value>
+        <value compset="1850_CAM60%NORESM%NORBC"   grid="a%1.9x2.5"                  >$DIN_LOC_ROOT/noresm-only/atm/cam/sst/fice-micom-divocn_sst-micom-dow_N1850_f19_tn14_20190621_1751-1780_series_version20190726_clim.nc</value>
+        <value compset="CAM60%NORESM%NORPIBC"      grid="a%0.9x1.25"                 >$DIN_LOC_ROOT/noresm-only/atm/cam/sst/fice-micom-divocn_sst-micom-dow_N1850frc2_f09_tn14_20191012_1351-1380_series_version20200106_clim.nc</value>
+        <value compset="CAM60%NORESM%NORPIBC"      grid="a%1.9x2.5"                  >$DIN_LOC_ROOT/noresm-only/atm/cam/sst/fice-micom-divocn_sst-micom-dow_N1850_f19_tn14_20190621_1751-1780_series_version20190726_clim.nc</value>
+
+        <value compset="2000"                      grid=".+"                         >$DIN_LOC_ROOT/atm/cam/sst/sst_HadOIBl_bc_1x1_2000climo_c180511.nc</value>
+        <value compset="2000"                      grid="a%T31.*_oi%T31"             >$DIN_LOC_ROOT/atm/cam/sst/sst_HadOIBl_bc_48x96_2000climo_c180511.nc</value>
+        <value compset="2000"                      grid="a%1.9x2.5.*_oi%1.9x2.5"     >$DIN_LOC_ROOT/atm/cam/sst/sst_HadOIBl_bc_1.9x2.5_2000climo_c180511.nc</value>
+        <value compset="2000"                      grid="a%0.9x1.25.*_oi%0.9x1.25"   >$DIN_LOC_ROOT/atm/cam/sst/sst_HadOIBl_bc_0.9x1.25_2000climo_c180511.nc</value>
+        <value compset="2000"                      grid="a%0.47x0.63.*_oi%0.47x0.63" >$DIN_LOC_ROOT/atm/cam/sst/sst_HadOIBl_bc_0.47x0.63_2000climo_c180511.nc</value>
+        <value compset="2000"                      grid="a%0.23x0.31.*_oi%0.23x0.31" >$DIN_LOC_ROOT/atm/cam/sst/sst_HadOIBl_bc_0.23x0.31_2000climo_c180511.nc</value>
+
+        <value compset="2000_CAM60%WCTS"           grid="a%0.9x1.25.*_oi%0.9x1.25"   >$DIN_LOC_ROOT/atm/cam/sst/sst_HadOIBl_bc_0.9x1.25_clim_c040926.nc</value>
+        <value compset="2000_CAM60%WCTS"           grid="a%1.9x2.5.*_oi%1.9x2.5"     >$DIN_LOC_ROOT/atm/cam/sst/f2000.waccm-mam3_1.9x2.5_L70.cam2.i.0017-01-01.c120410.nc</value>
+
+        <value compset="2010"                      grid=".+"                         >$DIN_LOC_ROOT/atm/cam/sst/sst_HadOIBl_bc_1x1_2010climo_c180511.nc</value>
+        <value compset="2010"                      grid="a%T31.*_oi%T31"             >$DIN_LOC_ROOT/atm/cam/sst/sst_HadOIBl_bc_48x96_2010climo_c180511.nc</value>
+        <value compset="2010"                      grid="a%1.9x2.5.*_oi%1.9x2.5"     >$DIN_LOC_ROOT/atm/cam/sst/sst_HadOIBl_bc_1.9x2.5_2010climo_c180511.nc</value>
+        <value compset="2010"                      grid="a%0.9x1.25.*_oi%0.9x1.25"   >$DIN_LOC_ROOT/atm/cam/sst/sst_HadOIBl_bc_0.9x1.25_2010climo_c180511.nc</value>
+        <value compset="2010"                      grid="a%0.47x0.63.*_oi%0.47x0.63" >$DIN_LOC_ROOT/atm/cam/sst/sst_HadOIBl_bc_0.47x0.63_2010climo_c180511.nc</value>
+        <value compset="2010"                      grid="a%0.23x0.31.*_oi%0.23x0.31" >$DIN_LOC_ROOT/atm/cam/sst/sst_HadOIBl_bc_0.23x0.31_2010climo_c180511.nc</value>
+      </values>
+    </entry>
+
+    <entry id="SSTICE_GRID_FILENAME">
+      <values match="first">
+        <value  compset="%NORESM%NORBC"           grid="0.9x1.25"                           >$DIN_LOC_ROOT/atm/cam/ocnfrac/domain.ocn.fv0.9x1.25_tnx1v4.170609_djlo.nc</value>
+        <value  compset="%NORESM%NORBC"           grid="1.9x2.5"                            >$DIN_LOC_ROOT/atm/cam/ocnfrac/domain.ocn.fv1.9x2.5_tnx1v4.170609_djlo.nc</value>
+        <value  compset="%NORESM%NORPIBC"         grid="0.9x1.25"                           >$DIN_LOC_ROOT/atm/cam/ocnfrac/domain.ocn.fv0.9x1.25_tnx1v4.170609_djlo.nc</value>
+        <value  compset="%NORESM%NORPIBC"         grid="1.9x2.5"                            >$DIN_LOC_ROOT/atm/cam/ocnfrac/domain.ocn.fv1.9x2.5_tnx1v4.170609_djlo.nc</value>
+        <value compset="DOCN%DOM"                 grid="a%T31.*_oi%T31"                     >$DIN_LOC_ROOT/atm/cam/ocnfrac/domain.camocn.48x96_gx3v7_100114.nc</value>
+        <value compset="DOCN%DOM"                 grid="a%1.9x2.5.*_oi%1.9x2.5"             >$DIN_LOC_ROOT/atm/cam/ocnfrac/domain.camocn.1.9x2.5_gx1v6_090403.nc </value>
+        <value compset="DOCN%DOM"                 grid="a%0.9x1.25.*_oi%0.9x1.25.*_m%gx1v6" >$DIN_LOC_ROOT/atm/cam/ocnfrac/domain.camocn.0.9x1.25_gx1v6_090403.nc</value>
+        <value compset="DOCN%DOM"                 grid="a%0.9x1.25.*_oi%0.9x1.25.*_m%gx1v7" >$DIN_LOC_ROOT/share/domains/domain.ocn.fv0.9x1.25_gx1v7.151020.nc</value>
+        <value compset="DOCN%DOM"                 grid="a%0.47x0.63.*_oi%0.47x0.63"         >$DIN_LOC_ROOT/atm/cam/ocnfrac/domain.camocn.0.47x0.63_gx1v6_090408.nc</value>
+        <value compset="DOCN%DOM"                 grid="a%0.23x0.31.*_oi%0.23x0.31"         >$DIN_LOC_ROOT/atm/cam/ocnfrac/domain.camocn.0.23x0.31_gx1v6_101108.nc</value>
+        <value compset="(HIST_|20TR_|5505_|TSCH)" grid=".+"                                 >$DIN_LOC_ROOT/ocn/docn7/domain.ocn.1x1.111007.nc</value>
+        <value compset="(HIST_|20TR_|5505_|TSCH)" grid="a%T31.*_oi%T31"                     >$DIN_LOC_ROOT/atm/cam/ocnfrac/domain.camocn.48x96_gx3v7_100114.nc</value>
+        <value compset="(HIST_|20TR_|5505_|TSCH)" grid="a%1.9x2.5.*_oi%1.9x2.5"             >$DIN_LOC_ROOT/atm/cam/ocnfrac/domain.camocn.1.9x2.5_gx1v6_090403.nc</value>
+        <value compset="(HIST_|20TR_|5505_|TSCH)" grid="a%0.9x1.25.*_oi%0.9x1.25.*_m%gx1v6" >$DIN_LOC_ROOT/atm/cam/ocnfrac/domain.camocn.0.9x1.25_gx1v6_090403.nc</value>
+        <value compset="(HIST_|20TR_|5505_|TSCH)" grid="a%0.9x1.25.*_oi%0.9x1.25.*_m%gx1v7" >$DIN_LOC_ROOT/share/domains/domain.ocn.fv0.9x1.25_gx1v7.151020.nc</value>
+        <value compset="(HIST_|20TR_|5505_|TSCH)" grid="a%0.47x0.63.*_oi%0.47x0.63"         >$DIN_LOC_ROOT/atm/cam/ocnfrac/domain.camocn.0.47x0.63_gx1v6_090408.nc</value>
+        <value compset="(HIST_|20TR_|5505_|TSCH)" grid="a%0.23x0.31.*_oi%0.23x0.31"         >$DIN_LOC_ROOT/atm/cam/ocnfrac/domain.camocn.0.23x0.31_gx1v6_101108.nc</value>
+        <value compset="1850"                     grid=".+"                                 >$DIN_LOC_ROOT/ocn/docn7/domain.ocn.1x1.111007.nc</value>
+        <value compset="1850"                     grid="a%T31.*_oi%T31"                     >$DIN_LOC_ROOT/atm/cam/ocnfrac/domain.camocn.48x96_gx3v7_100114.nc</value>
+        <value compset="1850"                     grid="a%1.9x2.5.*_oi%1.9x2.5"             >$DIN_LOC_ROOT/atm/cam/ocnfrac/domain.camocn.1.9x2.5_gx1v6_090403.nc</value>
+        <value compset="1850"                     grid="a%0.9x1.25.*_oi%0.9x1.25.*_m%gx1v6" >$DIN_LOC_ROOT/atm/cam/ocnfrac/domain.camocn.0.9x1.25_gx1v6_090403.nc</value>
+        <value compset="1850"                     grid="a%0.9x1.25.*_oi%0.9x1.25.*_m%gx1v7" >$DIN_LOC_ROOT/share/domains/domain.ocn.fv0.9x1.25_gx1v7.151020.nc</value>
+        <value compset="1850"                     grid="a%0.47x0.63.*_oi%0.47x0.63"         >$DIN_LOC_ROOT/atm/cam/ocnfrac/domain.camocn.0.47x0.63_gx1v6_090408.nc</value>
+        <value compset="1850"                     grid="a%0.23x0.31.*_oi%0.23x0.31"         >$DIN_LOC_ROOT/atm/cam/ocnfrac/domain.camocn.0.23x0.31_gx1v6_101108.nc</value>
+      </values>
+    </entry>
+
+    <entry id="SSTICE_YEAR_END">
+      <values match="first">
+        <value compset="CAM60%NORESM%NORPIBC">0</value>
+        <value compset="HIST_">2016</value>
+      </values>
+    </entry>
+
     <entry id="RUN_TYPE">
       <values match="first">
 	      <value grid="a%0.9x1.25_l%0.9x1.25_oi%0.9x1.25_r%r05_g%null_w%null_m%tnx1v4" compset="2000_CAM60%NORESM_CLM50%BGC-CROP_CICE%PRES_DOCN%DOM_MOSART_SGLC_SWAV" >hybrid</value>
