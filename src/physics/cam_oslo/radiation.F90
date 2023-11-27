@@ -1367,7 +1367,6 @@ subroutine radiation_tend( &
 
 #ifdef OSLO_AERO
                ! for calculation of direct and direct radiative forcing
-               !
                call rad_rrtmg_lw( &
                   lchnk, ncol, num_rrtmg_levs, r_state, state%pmid,  &
                   per_lw_abs*0.0_r8, cldfprime, c_cld_lw_abs, qrl, rd%qrlc, &
@@ -1389,6 +1388,9 @@ subroutine radiation_tend( &
                   flns, flnt, rd%flnsc, rd%flntc, cam_out%flwds,     &
                   rd%flut, rd%flutc, fnl, fcnl, rd%fldsc,            &
                   lu, ld)
+
+               ftem_1d(1:ncol) = cam_out%flwds(1:ncol) - flns(1:ncol)
+               call outfld('FLUS    ',ftem_1d ,pcols,lchnk)
 
                !  Output fluxes at 200 mb
                call vertinterp(ncol, pcols, pverp, state%pint, 20000._r8, fnl,  rd%fln200)
