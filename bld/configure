@@ -1776,8 +1776,7 @@ my $debug_opt = (defined $opts{'debug'}) ? 1 : 0;
 $cfg_ref->set('debug', $debug_opt);
 my $debug = $debug_opt ? 'ON': 'OFF';
 
-if ($print>=2) { print "Compiler debugging options: $
-debug$eol"; }
+if ($print>=2) { print "Compiler debugging options: $debug$eol"; }
 
 #-----------------------------------------------------------------------------------------------
 # Append to Makefile default C compiler options
