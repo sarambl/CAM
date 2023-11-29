@@ -2024,7 +2024,7 @@ subroutine dropmixnuc( &
 #endif
    if(history_aerosol) then
    do l = 1, psat
-      call outfld(ccn_name(l), ccn(1,1,l), pcols, lchnk)
+      call outfld(ccn_name(l), ccn(:,:,l), pcols, lchnk)
    enddo
    end if
 #ifndef OSLO_AERO

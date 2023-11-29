@@ -100,7 +100,7 @@ def buildcpp(case):
     if "-cosp" in config_opts:
         config_opts += ["-cosp_libdir", os.path.join(exeroot, "atm", "obj", "cosp")]
 
-    print "cam_aerocom is ",cam_aerocom
+    print(f"cam_aerocom is {cam_aerocom}")
     if cam_aerocom:
         config_opts += [" -aerocom"]
 
