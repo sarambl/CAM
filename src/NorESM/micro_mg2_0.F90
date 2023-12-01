@@ -2082,12 +2082,19 @@ subroutine micro_mg_tend ( &
         ! make sure that ni at advanced time step does not exceed
         ! maximum (existing N + source terms*dt), which is possible if mtime < deltat
         ! note that currently mtime = deltat
-        !================================================================
 
-        if (do_cldice .and. nitend(i,k).gt.0._r8.and.ni(i,k)+nitend(i,k)*deltat.gt.nimax(i,k)) then
-          nitncons(i,k) = nitncons(i,k) + nitend(i,k)-max(0._r8,(nimax(i,k)-ni(i,k))/deltat) !AL
+        !================================================================
+        !shofer---
+        if (nnucct(i,k)+nnuccc(i,k)+nnudep(i,k).gt.0._r8) then
+           nimax(i,k) = nimax(i,k)+(nnucct(i,k)+nnuccc(i,k)+nnudep(i,k))*lcldm(i,k)*deltat
+        end if
+
+        if (do_cldice .and. (nitend(i,k) > 0._r8) .and.                    &
+            (ni(i,k) + (nitend(i,k)*deltat) < nimax(i,k))) then
+           nitncons(i,k) = nitncons(i,k) + nitend(i,k) - max(0._r8,(nimax(i,k)-ni(i,k))/deltat)
            nitend(i,k)=max(0._r8,(nimax(i,k)-ni(i,k))/deltat)
         end if
+        !shofer---
 
      end do
 

@@ -965,7 +965,7 @@ contains
 
     do m = 1, pcnst
       if (cnst_cam_outfld(m)) then
-        call outfld(cnst_name(m), state%q(1,1,m), pcols, lchnk)
+        call outfld(cnst_name(m), state%q(:,:,m), pcols, lchnk)
       end if
     end do
 
@@ -1145,9 +1145,9 @@ contains
     !
     ! Output U, V, T, P and Z at bottom level
     !
-    call outfld ('UBOT    ', state%u(1,pver)  ,  pcols, lchnk)
-    call outfld ('VBOT    ', state%v(1,pver)  ,  pcols, lchnk)
-    call outfld ('ZBOT    ', state%zm(1,pver) , pcols, lchnk)
+    call outfld ('UBOT    ', state%u(:,pver)  ,  pcols, lchnk)
+    call outfld ('VBOT    ', state%v(:,pver)  ,  pcols, lchnk)
+    call outfld ('ZBOT    ', state%zm(:,pver) , pcols, lchnk)
 
     !! Boundary layer atmospheric stability, temperature, water vapor diagnostics
 
@@ -1284,7 +1284,7 @@ contains
 
     if (co2_transport()) then
       do m = 1,4
-        call outfld(trim(cnst_name(c_i(m)))//'_BOT', state%q(1,pver,c_i(m)), pcols, lchnk)
+        call outfld(trim(cnst_name(c_i(m)))//'_BOT', state%q(:,pver,c_i(m)), pcols, lchnk)
       end do
     end if
 
@@ -1379,7 +1379,7 @@ contains
     !
     ! Output Q at bottom level
     !
-    call outfld ('QBOT    ', state%q(1,pver,1),  pcols, lchnk)
+    call outfld ('QBOT    ', state%q(:,pver,1),  pcols, lchnk)
 
     ! Total energy of the atmospheric column for atmospheric heat storage calculations
 
@@ -1396,7 +1396,7 @@ contains
     do k=2,pver
       ftem(:ncol,1) = ftem(:ncol,1) + ftem(:ncol,k)
     end do
-    call outfld ('ATMEINT   ',ftem(:ncol,1)  ,pcols   ,lchnk     )
+    call outfld ('ATMEINT   ',ftem(:,1)  ,pcols   ,lchnk     )
 
     !! Boundary layer atmospheric stability, temperature, water vapor diagnostics
 
@@ -1419,11 +1419,11 @@ contains
          hist_fld_active('THE9251000') .or. &
          hist_fld_active('THE8501000') .or. &
          hist_fld_active('THE7001000')) then
-      call vertinterp(ncol, pcols, pver, state%pmid, 100000._r8, state%q(1,1,1), p_surf_q1)
+      call vertinterp(ncol, pcols, pver, state%pmid, 100000._r8, state%q(:,:,1), p_surf_q1)
     end if
 
     if (hist_fld_active('THE9251000')) then
-      call vertinterp(ncol, pcols, pver, state%pmid, 92500._r8, state%q(1,1,1), p_surf_q2)
+      call vertinterp(ncol, pcols, pver, state%pmid, 92500._r8, state%q(:,:,1), p_surf_q2)
     end if
 
 !!! at 1000 mb and 925 mb
@@ -1450,7 +1450,7 @@ contains
 
 !!! at 1000 mb and 850 mb
     if (hist_fld_active('THE8501000')) then
-      call vertinterp(ncol, pcols, pver, state%pmid, 85000._r8, state%q(1,1,1), p_surf_q2)
+      call vertinterp(ncol, pcols, pver, state%pmid, 85000._r8, state%q(:,:,1), p_surf_q2)
       p_surf = ((p_surf_t(:, surf_085000)*(1000.0_r8/850.0_r8)**cappa) *              &
                 exp((2500000.0_r8*p_surf_q2)/(1004.0_r8*p_surf_t(:, surf_085000)))) - &
                 (p_surf_t(:,surf_100000)*(1.0_r8)**cappa)*exp((2500000.0_r8*p_surf_q1)/(1004.0_r8*p_surf_t(:,surf_100000)))
@@ -1465,7 +1465,7 @@ contains
 
 !!! at 1000 mb and 700 mb
     if (hist_fld_active('THE7001000')) then
-      call vertinterp(ncol, pcols, pver, state%pmid, 70000._r8, state%q(1,1,1), p_surf_q2)
+      call vertinterp(ncol, pcols, pver, state%pmid, 70000._r8, state%q(:,:,1), p_surf_q2)
       p_surf = ((p_surf_t(:, surf_070000)*(1000.0_r8/700.0_r8)**cappa) *              &
                 exp((2500000.0_r8*p_surf_q2)/(1004.0_r8*p_surf_t(:, surf_070000)))) - &
                 (p_surf_t(:,surf_100000)*(1.0_r8)**cappa)*exp((2500000.0_r8*p_surf_q1)/(1004.0_r8*p_surf_t(:,surf_100000)))
@@ -1721,7 +1721,7 @@ contains
     if (moist_physics) then
       call outfld('SHFLX',    cam_in%shf,       pcols, lchnk)
       call outfld('LHFLX',    cam_in%lhf,       pcols, lchnk)
-      call outfld('QFLX',     cam_in%cflx(1,1), pcols, lchnk)
+      call outfld('QFLX',     cam_in%cflx(:,:), pcols, lchnk)
 
       call outfld('TAUX',     cam_in%wsx,       pcols, lchnk)
       call outfld('TAUY',     cam_in%wsy,       pcols, lchnk)
@@ -2089,16 +2089,16 @@ contains
     call cnst_get_ind('CLDICE', ixcldice, abort=.false.)
 
     if ( cnst_cam_outfld(       1) ) then
-      call outfld (apcnst(       1), state%q(1,1,       1), pcols, lchnk)
+      call outfld (apcnst(       1), state%q(:,:,       1), pcols, lchnk)
     end if
     if (ixcldliq > 0) then
       if (cnst_cam_outfld(ixcldliq)) then
-        call outfld (apcnst(ixcldliq), state%q(1,1,ixcldliq), pcols, lchnk)
+        call outfld (apcnst(ixcldliq), state%q(:,:,ixcldliq), pcols, lchnk)
       end if
     end if
     if (ixcldice > 0) then
       if ( cnst_cam_outfld(ixcldice) ) then
-        call outfld (apcnst(ixcldice), state%q(1,1,ixcldice), pcols, lchnk)
+        call outfld (apcnst(ixcldice), state%q(:,:,ixcldice), pcols, lchnk)
       end if
     end if
 
@@ -2242,16 +2242,16 @@ contains
     call cnst_get_ind('CLDICE', ixcldice, abort=.false.)
 
     if ( cnst_cam_outfld(       1) ) then
-      call outfld (bpcnst(       1), state%q(1,1,       1), pcols, lchnk)
+      call outfld (bpcnst(       1), state%q(:,:,       1), pcols, lchnk)
     end if
     if (ixcldliq > 0) then
       if (cnst_cam_outfld(ixcldliq)) then
-        call outfld (bpcnst(ixcldliq), state%q(1,1,ixcldliq), pcols, lchnk)
+        call outfld (bpcnst(ixcldliq), state%q(:,:,ixcldliq), pcols, lchnk)
       end if
     end if
     if (ixcldice > 0) then
       if (cnst_cam_outfld(ixcldice)) then
-        call outfld (bpcnst(ixcldice), state%q(1,1,ixcldice), pcols, lchnk)
+        call outfld (bpcnst(ixcldice), state%q(:,:,ixcldice), pcols, lchnk)
       end if
     end if
 
