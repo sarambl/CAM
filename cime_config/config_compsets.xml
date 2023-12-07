@@ -398,32 +398,22 @@ When using NorESM-derived boundary conditions, we have opted to use the same lan
 
   <compset>
     <alias>F2010climo</alias>
-    <lname>2010_CAM60_CLM50%SP_CICE%PRES_DOCN%DOM_MOSART_CISM2%NOEVOLVE_SWAV</lname>
+    <lname>2010_CAM60_CLM50%SP_CICE%PRES_DOCN%DOM_MOSART_SGLC_SWAV</lname>
   </compset>
 
   <compset>
     <alias>F1850</alias>
-    <lname>1850_CAM60_CLM50%SP_CICE%PRES_DOCN%DOM_MOSART_CISM2%NOEVOLVE_SWAV</lname>
-  </compset>
-
-  <compset>
-    <alias>FSPCAMM</alias>
-    <lname>2000_CAM%SPCAMM_CLM50%SP_CICE%PRES_DOCN%DOM_RTM_SGLC_SWAV</lname>
-  </compset>
-
-  <compset>
-    <alias>FSPCAMS</alias>
-    <lname>2000_CAM%SPCAMS_CLM50%SP_CICE%PRES_DOCN%DOM_RTM_SGLC_SWAV</lname>
+    <lname>1850_CAM60_CLM50%SP_CICE%PRES_DOCN%DOM_MOSART_SGLC_SWAV</lname>
   </compset>
 
   <compset>
     <alias>F1850_BDRD</alias>
-    <lname>1850_CAM60_CLM50%BGC_CICE%PRES_DOCN%DOM_MOSART_CISM2%NOEVOLVE_SWAV_BGC%BDRD</lname>
+    <lname>1850_CAM60_CLM50%BGC_CICE%PRES_DOCN%DOM_MOSART_SGLC_SWAV_BGC%BDRD</lname>
   </compset>
 
   <compset>
     <alias>FHIST_BDRD</alias>
-    <lname>HIST_CAM60_CLM50%BGC-CROP_CICE%PRES_DOCN%DOM_MOSART_CISM2%NOEVOLVE_SWAV_BGC%BDRD</lname>
+    <lname>HIST_CAM60_CLM50%BGC-CROP_CICE%PRES_DOCN%DOM_MOSART_SGLC_SWAV_BGC%BDRD</lname>
   </compset>
 
   <!-- CAM simpler model compsets -->
@@ -469,42 +459,29 @@ When using NorESM-derived boundary conditions, we have opted to use the same lan
   <!-- CAM untested compsets -->
   <!-- ****************************** -->
 
-  <!-- spcam untested compsets -->
-
-  <compset>
-    <alias>FSPCAMCLBS</alias>
-    <lname>2000_CAM%SPCAMCLBS_CLM50%SP_CICE%PRES_DOCN%DOM_RTM_SGLC_SWAV</lname>
-  </compset>
-
-  <compset>
-    <alias>FSPCAMCLBM</alias>
-    <lname>2000_CAM%SPCAMCLBM_CLM50%SP_CICE%PRES_DOCN%DOM_RTM_SGLC_SWAV</lname>
-  </compset>
-
-
   <!-- cam-chem untested compsets -->
 
   <compset>
     <alias>FC2000climo</alias>
-    <lname>2000_CAM60%CCTS_CLM50%SP_CICE%PRES_DOCN%DOM_MOSART_CISM2%NOEVOLVE_SWAV</lname>
+    <lname>2000_CAM60%CCTS_CLM50%SP_CICE%PRES_DOCN%DOM_MOSART_SGLC_SWAV</lname>
   </compset>
 
   <compset>
     <alias>FC2010climo</alias>
-    <lname>2010_CAM60%CCTS_CLM50%SP_CICE%PRES_DOCN%DOM_MOSART_CISM2%NOEVOLVE_SWAV</lname>
+    <lname>2010_CAM60%CCTS_CLM50%SP_CICE%PRES_DOCN%DOM_MOSART_SGLC_SWAV</lname>
   </compset>
 
   <compset>
     <alias>FCHIST</alias>
-    <lname>HIST_CAM60%CCTS_CLM50%SP_CICE%PRES_DOCN%DOM_MOSART_CISM2%NOEVOLVE_SWAV</lname>
+    <lname>HIST_CAM60%CCTS_CLM50%SP_CICE%PRES_DOCN%DOM_MOSART_SGLC_SWAV</lname>
   </compset>
   <compset>
     <alias>FCvbsxHIST</alias>
-    <lname>HIST_CAM60%CVBSX_CLM50%SP_CICE%PRES_DOCN%DOM_MOSART_CISM2%NOEVOLVE_SWAV</lname>
+    <lname>HIST_CAM60%CVBSX_CLM50%SP_CICE%PRES_DOCN%DOM_MOSART_SGLC_SWAV</lname>
   </compset>
   <compset>
     <alias>FCfireHIST</alias>
-    <lname>HIST_CAM60%CFIRE_CLM50%BGC-CROP_CICE%PRES_DOCN%DOM_MOSART_CISM2%NOEVOLVE_SWAV</lname>
+    <lname>HIST_CAM60%CFIRE_CLM50%BGC-CROP_CICE%PRES_DOCN%DOM_MOSART_SGLC_SWAV</lname>
   </compset>
 
   <compset>
@@ -555,37 +532,37 @@ When using NorESM-derived boundary conditions, we have opted to use the same lan
 
   <compset>
     <alias>FWHIST</alias>
-    <lname>HIST_CAM60%WCTS_CLM50%SP_CICE%PRES_DOCN%DOM_MOSART_CISM2%NOEVOLVE_SWAV</lname>
+    <lname>HIST_CAM60%WCTS_CLM50%SP_CICE%PRES_DOCN%DOM_MOSART_SGLC_SWAV</lname>
   </compset>
 
   <compset>
     <alias>FWHIST_BGC</alias>
-    <lname>HIST_CAM60%WCTS_CLM50%BGC-CROP_CICE%PRES_DOCN%DOM_MOSART_CISM2%NOEVOLVE_SWAV</lname>
+    <lname>HIST_CAM60%WCTS_CLM50%BGC-CROP_CICE%PRES_DOCN%DOM_MOSART_SGLC_SWAV</lname>
   </compset>
 
   <compset>
     <alias>FWsc2010climo</alias>
-    <lname>2010_CAM60%WCSC_CLM50%SP_CICE%PRES_DOCN%DOM_MOSART_CISM2%NOEVOLVE_SWAV</lname>
+    <lname>2010_CAM60%WCSC_CLM50%SP_CICE%PRES_DOCN%DOM_MOSART_SGLC_SWAV</lname>
   </compset>
 
   <compset>
     <alias>FWsc2000climo</alias>
-    <lname>2000_CAM60%WCSC_CLM50%SP_CICE%PRES_DOCN%DOM_MOSART_CISM2%NOEVOLVE_SWAV</lname>
+    <lname>2000_CAM60%WCSC_CLM50%SP_CICE%PRES_DOCN%DOM_MOSART_SGLC_SWAV</lname>
   </compset>
 
   <compset>
     <alias>FWsc1850</alias>
-    <lname>1850_CAM60%WCSC_CLM50%SP_CICE%PRES_DOCN%DOM_MOSART_CISM2%NOEVOLVE_SWAV</lname>
+    <lname>1850_CAM60%WCSC_CLM50%SP_CICE%PRES_DOCN%DOM_MOSART_SGLC_SWAV</lname>
   </compset>
 
   <compset>
     <alias>FWscHIST</alias>
-    <lname>HIST_CAM60%WCSC_CLM50%SP_CICE%PRES_DOCN%DOM_MOSART_CISM2%NOEVOLVE_SWAV</lname>
+    <lname>HIST_CAM60%WCSC_CLM50%SP_CICE%PRES_DOCN%DOM_MOSART_SGLC_SWAV</lname>
   </compset>
 
   <compset>
     <alias>FW1850</alias>
-    <lname>1850_CAM60%WCTS_CLM50%SP_CICE%PRES_DOCN%DOM_MOSART_CISM2%NOEVOLVE_SWAV</lname>
+    <lname>1850_CAM60%WCTS_CLM50%SP_CICE%PRES_DOCN%DOM_MOSART_SGLC_SWAV</lname>
   </compset>
 
   <!-- ****************************** -->
@@ -594,12 +571,12 @@ When using NorESM-derived boundary conditions, we have opted to use the same lan
 
   <compset>
     <alias>FW2000climo</alias>
-    <lname>2000_CAM60%WCTS_CLM50%SP_CICE%PRES_DOCN%DOM_MOSART_CISM2%NOEVOLVE_SWAV</lname>
+    <lname>2000_CAM60%WCTS_CLM50%SP_CICE%PRES_DOCN%DOM_MOSART_SGLC_SWAV</lname>
   </compset>
 
   <compset>
     <alias>FW2010climo</alias>
-    <lname>2010_CAM60%WCTS_CLM50%SP_CICE%PRES_DOCN%DOM_MOSART_CISM2%NOEVOLVE_SWAV</lname>
+    <lname>2010_CAM60%WCTS_CLM50%SP_CICE%PRES_DOCN%DOM_MOSART_SGLC_SWAV</lname>
   </compset>
 
   <compset>
@@ -614,7 +591,7 @@ When using NorESM-derived boundary conditions, we have opted to use the same lan
 
   <compset>
     <alias>FWmaHIST</alias>
-    <lname>HIST_CAM60%WCCM_CLM50%SP_CICE%PRES_DOCN%DOM_MOSART_CISM2%NOEVOLVE_SWAV</lname>
+    <lname>HIST_CAM60%WCCM_CLM50%SP_CICE%PRES_DOCN%DOM_MOSART_SGLC_SWAV</lname>
   </compset>
 
   <compset>
@@ -624,7 +601,7 @@ When using NorESM-derived boundary conditions, we have opted to use the same lan
 
   <compset>
     <alias>FWmadHIST</alias>
-    <lname>HIST_CAM60%WCMD_CLM50%SP_CICE%PRES_DOCN%DOM_MOSART_CISM2%NOEVOLVE_SWAV</lname>
+    <lname>HIST_CAM60%WCMD_CLM50%SP_CICE%PRES_DOCN%DOM_MOSART_SGLC_SWAV</lname>
   </compset>
 
   <compset>
