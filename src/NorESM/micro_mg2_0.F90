@@ -2081,7 +2081,7 @@ subroutine micro_mg_tend ( &
 
 !! In NorESM, there was an artificial limit on the number of ice particles.
 !! By default, NorESM2.1 is using a 'corrected' ice delimiter
-!! Uncomment the line below to recover the NorESM2 behavior
+!! Uncomment the line below to recover the NorESM2 ice delimiter behavior
 !! See the NorESM2.1 release notes for more information.
 !#define NORESM2_ICE_DELIMITER
 #ifndef NORESM2_ICE_DELIMITER
