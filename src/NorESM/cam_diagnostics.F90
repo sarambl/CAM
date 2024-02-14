@@ -23,13 +23,8 @@ use time_manager,    only: is_first_step
 use scamMod,         only: single_column, wfld
 use cam_abortutils,  only: endrun
 
-#ifdef OSLO_AERO
-use opttab,        only: RF
-#endif
-
 implicit none
 private
-save
 
 ! Public interfaces
 
@@ -109,6 +104,12 @@ integer :: tpert_idx=-1, qpert_idx=-1, pblh_idx=-1
 
 integer :: trefmxav_idx = -1, trefmnav_idx = -1
 
+#ifdef AEROCOM
+logical :: do_aerocom = .true.
+#else
+logical :: do_aerocom = .false.
+#endif
+
 contains
 
 !==============================================================================
@@ -179,22 +180,24 @@ contains
     use constituent_burden, only: constituent_burden_init
     use physics_buffer,     only: pbuf_set_field
     use tidal_diag,         only: tidal_diag_init
-#ifdef AEROCOM
-    use commondefinitions,  only: nbmodes
+#ifdef OSLO_AERO
+    use oslo_aero_share,    only: nbmodes
 #endif
 
     type(physics_buffer_desc), pointer, intent(in) :: pbuf2d(:,:)
 
     integer :: k, m
     integer :: ixcldice, ixcldliq ! constituent indices for cloud liquid and ice water.
+!AL
     integer :: ixcldni, ixcldnc ! constituent indices for cloud liquid and ice water.
+!AL
     integer :: ierr
 
-#ifdef AEROCOM
+!+ AEROCOM beg
     character(len=10) :: modeString
     character(len=20) :: varname
     integer :: i, irh
-#endif
+!+ AEROCOM end
 
     ! outfld calls in diag_phys_writeout
     call addfld (cnst_name(1), (/ 'lev' /), 'A', 'kg/kg',    cnst_longname(1))
@@ -310,7 +313,6 @@ contains
 
     call addfld ('ATMEINT',    horiz_only,  'A', 'J/m2','Vertically integrated total atmospheric energy ')
 
-#ifdef OSLO_AERO
     call addfld ('AOD_VIS ',horiz_only, 'A','unitless','Aerosol optical depth at 0.442-0.625um') ! CAM4-Oslo: 0.35-0.64um
     call addfld ('ABSVIS  ',horiz_only, 'A','unitless','Aerosol absorptive optical depth at 0.442-0.625um') ! CAM4-Oslo: 0.35-0.64um
     call addfld ('AODVVOLC ',horiz_only, 'A','unitless','CMIP6 volcanic aerosol optical depth at 0.442-0.625um') ! CAM4-Oslo: 0.35-0.64um
@@ -324,6 +326,8 @@ contains
     call addfld ('ASYMMVIS',(/'lev'/),  'A','unitless','Aerosol assymetry factor in visible wavelength band')
     call addfld ('EXTVIS  ',(/'lev'/),  'A','1/km    ','Aerosol extinction')
     call addfld ('BVISVOLC ',(/'lev'/),   'A','1/km    ','CMIP6 volcanic aerosol extinction at 0.442-0.625um')
+
+    ! AEROFFL start
     call addfld ('FSNT_DRF',horiz_only, 'A','W/m^2','Total column absorbed solar flux (DIRind)')
     call addfld ('FSNTCDRF',horiz_only, 'A','W/m^2','Clear sky total column absorbed solar flux (DIRind)' )
     call addfld ('FSNS_DRF',horiz_only, 'A','W/m^2   ','Surface absorbed solar flux (DIRind)' )
@@ -337,7 +341,9 @@ contains
     call addfld ('FSUS_DRF',horiz_only, 'A','W/m^2   ','SW upwelling flux at surface')
     call addfld ('FSDSCDRF',horiz_only, 'A','W/m^2   ','SW downwelling clear sky flux at surface')
     call addfld ('FLUS    ',horiz_only, 'A','W/m^2   ','LW surface upwelling flux')
-#ifdef AEROCOM
+    ! AEROFFL end
+
+    if (do_aerocom) then
       call addfld ('AKCXS   ',horiz_only, 'A','mg/m2   ','Scheme excess aerosol mass burden')
       call addfld ('PMTOT   ',horiz_only, 'A','ug/m3   ','Aerosol PM, all sizes')
       call addfld ('PM25    ',horiz_only, 'A','ug/m3   ','Aerosol PM2.5')
@@ -468,7 +474,7 @@ contains
       call addfld ('BATOTVIS',(/'lev'/),'A','1/km','Aerosol 3d absorption at 0.442-0.625') ! CAM4-Oslo: 0.35-0.64um
       call addfld ('BATSW13 ',(/'lev'/),'A','1/km','Aerosol 3d SW absorption at 3.077-3.846um')
       call addfld ('BATLW01 ',(/'lev'/),'A','1/km','Aerosol 3d LW absorption depth at 3.077-3.846um')
-
+#ifdef OSLO_AERO
       do i=1,nbmodes
          modeString="  "
          write(modeString,"(I2)"),i
@@ -483,10 +489,8 @@ contains
          varName = "Cxsrel"//trim(modeString)
          if(i.ne.3) call addfld(varName, horiz_only, 'A', 'unitless', 'relative exessive added mass column for mode'//modeString)
       enddo
-
-#endif  ! AEROCOM
-#endif  ! OSLO_AERO
-
+#endif
+   end if
 
     if (history_amwg) then
       call add_default ('PHIS    '  , 1, ' ')
@@ -562,6 +566,10 @@ contains
       call add_default ('PTTEND'          , history_budget_histfile_num, ' ')
     end if
 
+!akc6+ CNVCLD is zero
+!   call add_default ('CNVCLD  ', 1, ' ')
+!akc6-
+
     ! create history variables for fourier coefficients of the diurnal
     ! and semidiurnal tide in T, U, V, and Z3
     call tidal_diag_init()
@@ -619,7 +627,6 @@ contains
     call addfld ('MO_pAM',   horiz_only, 'A', 'kg*m2/s*rad2',&
          'Total column mass axial angular momentum after dry mass correction')
 
-#ifdef OSLO_AERO
    call add_default ('AOD_VIS ', 1, ' ')
    call add_default ('ABSVIS  ', 1, ' ')
    call add_default ('AODVVOLC', 1, ' ')
@@ -629,6 +636,7 @@ contains
    call add_default ('CABSVIS ', 1, ' ')
    call add_default ('CLDFREE ', 1, ' ')
    call add_default ('N_AER   ', 1, ' ')
+!-   call add_default ('N_AERORG', 1, ' ')
    call add_default ('SSAVIS  ', 1, ' ')
    call add_default ('ASYMMVIS', 1, ' ')
    call add_default ('EXTVIS  ', 1, ' ')
@@ -646,7 +654,7 @@ contains
      call add_default ('FSUS_DRF', 1, ' ')
      call add_default ('FSDSCDRF', 1, ' ')
      call add_default ('FLUS    ', 1, ' ')
-#ifdef AEROCOM
+     if (do_aerocom) then
       call add_default ('AKCXS   ', 1, ' ')
       call add_default ('PMTOT   ', 1, ' ')
       call add_default ('PM25    ', 1, ' ')
@@ -767,13 +775,13 @@ contains
       call add_default ('NNAT_10 ', 1, ' ')
       call add_default ('NNAT_12 ', 1, ' ')
       call add_default ('NNAT_14 ', 1, ' ')
-      call add_default ('AIRMASSL', 1, ' ')
-      call add_default ('AIRMASS ', 1, ' ')
+      call add_default ('AIRMASSL', 1, ' ')  !akc6
+      call add_default ('AIRMASS ', 1, ' ')  !akc6
       call add_default ('BETOTVIS', 1, ' ')
       call add_default ('BATOTVIS', 1, ' ')
       call add_default ('BATSW13 ', 1, ' ')
       call add_default ('BATLW01 ', 1, ' ')
-
+#ifdef OSLO_AERO
       do i=1,nbmodes
          modeString="  "
          write(modeString,"(I2)"),i
@@ -788,9 +796,8 @@ contains
          varName = "Cxsrel"//trim(modeString)
          if(i.ne.3) call add_default(varName, 1, ' ')
       enddo
-
-#endif  ! AEROCOM
-#endif  ! OSLO_AERO
+#endif
+   end if
 
   end subroutine diag_init_dry
 
@@ -975,9 +982,9 @@ contains
     call addfld('a2x_DSTWET4',  horiz_only, 'A',  'kg/m2/s', 'wetdep of dust (bin4)')
     call addfld('a2x_DSTDRY4',  horiz_only, 'A',  'kg/m2/s', 'drydep of dust (bin4)')
 
-#ifdef AEROCOM
-    call add_default ('RHW     ', 1, ' ')
-#endif  ! aerocom
+    if (do_aerocom) then
+       call add_default ('RHW     ', 1, ' ')
+    end if
 
     ! defaults
     if (history_amwg) then
@@ -1558,7 +1565,7 @@ contains
     !
     call outfld ('UBOT    ', state%u(:,pver)  ,  pcols, lchnk)
     call outfld ('VBOT    ', state%v(:,pver)  ,  pcols, lchnk)
-    call outfld ('ZBOT    ', state%zm(:,pver) , pcols, lchnk)
+    call outfld ('ZBOT    ', state%zm(:,pver) ,  pcols, lchnk)
 
     !! Boundary layer atmospheric stability, temperature, water vapor diagnostics
 
@@ -1747,24 +1754,24 @@ contains
        call outfld ('RELHUM  ',ftem    ,pcols   ,lchnk     )
     end if
 
-#ifdef AEROCOM
+    if (do_aerocom) then
           ! We want RHW output always when AEROCOM is on (not only if added to a namelist)
           ! RH w.r.t liquid (water)
           call qsat_water (state%t(:ncol,:), state%pmid(:ncol,:), &
                esl(:ncol,:), ftem(:ncol,:))
           ftem(:ncol,:) = state%q(:ncol,:,1)/ftem(:ncol,:)*100._r8
           call outfld ('RHW  ',ftem    ,pcols   ,lchnk     )
-#endif
+       end if
 
     if (hist_fld_active('RHW') .or. hist_fld_active('RHI') .or. hist_fld_active('RHCFMIP') ) then
 
-#ifndef AEROCOM
-      ! RH w.r.t liquid (water)
-      call qsat_water (state%t(:ncol,:), state%pmid(:ncol,:), &
-           esl(:ncol,:), ftem(:ncol,:))
-      ftem(:ncol,:) = state%q(:ncol,:,1)/ftem(:ncol,:)*100._r8
-      call outfld ('RHW  ',ftem    ,pcols   ,lchnk     )
-#endif AEROCOM
+    if (.not. do_aerocom) then
+       ! RH w.r.t liquid (water)
+       call qsat_water (state%t(:ncol,:), state%pmid(:ncol,:), &
+            esl(:ncol,:), ftem(:ncol,:))
+       ftem(:ncol,:) = state%q(:ncol,:,1)/ftem(:ncol,:)*100._r8
+       call outfld ('RHW  ',ftem    ,pcols   ,lchnk     )
+    end if
 
       ! Convert to RHI (ice)
       do i=1,ncol

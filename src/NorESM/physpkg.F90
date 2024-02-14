@@ -15,9 +15,9 @@ module physpkg
   use spmd_utils,       only: masterproc
   use physconst,        only: latvap, latice, rh2o
   use physics_types,    only: physics_state, physics_tend, physics_state_set_grid, &
-       physics_ptend, physics_tend_init, physics_update,    &
-       physics_type_alloc, physics_ptend_dealloc,&
-       physics_state_alloc, physics_state_dealloc, physics_tend_alloc, physics_tend_dealloc
+                              physics_ptend, physics_tend_init, physics_update,    &
+                              physics_type_alloc, physics_ptend_dealloc,&
+                              physics_state_alloc, physics_state_dealloc, physics_tend_alloc, physics_tend_dealloc
   use phys_grid,        only: get_ncols_p
   use phys_gmean,       only: gmean_mass
   use ppgrid,           only: begchunk, endchunk, pcols, pver, pverp, psubcols
@@ -31,13 +31,11 @@ module physpkg
   use perf_mod
   use cam_logfile,     only: iulog
   use camsrfexch,      only: cam_export
-
   use modal_aero_calcsize,    only: modal_aero_calcsize_init, modal_aero_calcsize_diag, modal_aero_calcsize_reg
   use modal_aero_wateruptake, only: modal_aero_wateruptake_init, modal_aero_wateruptake_dr, modal_aero_wateruptake_reg
 
   implicit none
   private
-  save
 
   ! Public methods
   public phys_register ! was initindx  - register physics methods
@@ -70,8 +68,8 @@ module physpkg
   integer ::  cldliqini_idx      = 0
   integer ::  cldiceini_idx      = 0
 !AL
-  integer ::  cldncini_idx       = 0
-  integer ::  cldniini_idx       = 0
+  integer ::  cldncini_idx       = 0 
+  integer ::  cldniini_idx       = 0 
 !AK
   integer ::  prec_str_idx       = 0
   integer ::  snow_str_idx       = 0
@@ -84,6 +82,12 @@ module physpkg
   integer ::  prec_sh_idx        = 0
   integer ::  snow_sh_idx        = 0
   integer ::  dlfzm_idx          = 0     ! detrained convective cloud water mixing ratio.
+
+#ifdef AEROCOM
+logical :: do_aerocom = .true.
+#else
+logical :: do_aerocom = .false.
+#endif
 
 !=======================================================================
 contains
@@ -111,7 +115,11 @@ contains
     use cloud_fraction,     only: cldfrc_register
     use rk_stratiform,      only: rk_stratiform_register
     use microp_driver,      only: microp_driver_register
+#ifdef OSLO_AERO
+    use oslo_aero_microp,   only: oslo_aero_microp_register
+#else
     use microp_aero,        only: microp_aero_register
+#endif
     use macrop_driver,      only: macrop_driver_register
     use clubb_intr,         only: clubb_register_cam
     use conv_water,         only: conv_water_register
@@ -212,13 +220,16 @@ contains
           call rk_stratiform_register()
        elseif( microp_scheme == 'MG' ) then
           if (.not. do_clubb_sgs) call macrop_driver_register()
+#ifdef OSLO_AERO
+          call oslo_aero_microp_register()
+#else
           call microp_aero_register()
+#endif
           call microp_driver_register()
        end if
 
        ! Register CLUBB_SGS here
        if (do_clubb_sgs) call clubb_register_cam()
-
 
        call pbuf_add_field('PREC_STR',  'physpkg',dtype_r8,(/pcols/),prec_str_idx)
        call pbuf_add_field('SNOW_STR',  'physpkg',dtype_r8,(/pcols/),snow_str_idx)
@@ -718,7 +729,11 @@ contains
     use rk_stratiform,      only: rk_stratiform_init
     use wv_saturation,      only: wv_sat_init
     use microp_driver,      only: microp_driver_init
+#ifdef OSLO_AERO
+    use oslo_aero_microp,   only: oslo_aero_microp_init
+#else
     use microp_aero,        only: microp_aero_init
+#endif
     use macrop_driver,      only: macrop_driver_init
     use conv_water,         only: conv_water_init
     use spcam_drivers,      only: spcam_init
@@ -876,7 +891,11 @@ contains
        call rk_stratiform_init()
     elseif( microp_scheme == 'MG' ) then
        if (.not. do_clubb_sgs) call macrop_driver_init(pbuf2d)
+#ifdef OSLO_AERO
+       call oslo_aero_microp_init()
+#else
        call microp_aero_init()
+#endif
        call microp_driver_init(pbuf2d)
        call conv_water_init
     elseif( microp_scheme == 'SPCAM_m2005') then
@@ -1246,7 +1265,6 @@ contains
     use waccmx_phys_intr,   only: waccmx_phys_ion_elec_temp_tend ! WACCM-X
     use aoa_tracers,        only: aoa_tracers_timestep_tend
     use physconst,          only: rhoh2o, latvap,latice
-    use aero_model,         only: aero_model_drydep
     use carma_intr,         only: carma_emission_tend, carma_timestep_tend
     use carma_flags_mod,    only: carma_do_aerosol, carma_do_emission
     use check_energy,       only: check_energy_chng, calc_te_and_aam_budgets
@@ -1267,7 +1285,7 @@ contains
     use qneg_module,        only: qneg4
     use co2_cycle,          only: co2_cycle_set_ptend
     use nudging,            only: Nudge_Model,Nudge_ON,nudging_timestep_tend
-
+    use aero_model,    only: aero_model_drydep
     !
     ! Arguments
     !
@@ -1330,7 +1348,7 @@ contains
     real(r8) :: tmp_cldni(pcols,pver) ! tmp space
 !AL
 
-    !tht: variables for dme_energy_adjust
+    !tht: variables for dme_energy_adjust 
     real(r8):: eflx(pcols), dsema(pcols)
     logical, parameter:: ohf_adjust =.true.  ! condensates have surface specific enthalpy
 
@@ -1648,7 +1666,7 @@ contains
    !call diag_phys_tend_writeout (state, pbuf,  tend, ztodt, tmp_q, tmp_cldliq, tmp_cldice, &
    !     qini, cldliqini, cldiceini)
      call diag_phys_tend_writeout (state, pbuf,  tend, ztodt, tmp_q, tmp_t, tmp_cldliq, tmp_cldice, &
-          tmp_cldnc,tmp_cldni,qini, cldliqini, cldiceini, cldncini, cldniini, eflx, dsema )
+          tmp_cldnc,tmp_cldni,qini, cldliqini, cldiceini, cldncini, cldniini, eflx, dsema ) 
 !AL-tht
 
     call clybry_fam_set( ncol, lchnk, map2chm, state%q, pbuf )
@@ -1693,7 +1711,6 @@ contains
     use dadadj_cam,      only: dadadj_tend
     use rk_stratiform,   only: rk_stratiform_tend
     use microp_driver,   only: microp_driver_tend
-    use microp_aero,     only: microp_aero_run
     use macrop_driver,   only: macrop_driver_tend
     use physics_types,   only: physics_state, physics_tend, physics_ptend, &
          physics_update, physics_ptend_init, physics_ptend_sum, &
@@ -1709,7 +1726,6 @@ contains
     use check_energy,    only: check_tracers_data, check_tracers_init, check_tracers_chng
     use check_energy,    only: calc_te_and_aam_budgets
     use dycore,          only: dycore_is
-    use aero_model,      only: aero_model_wetdep
     use carma_intr,      only: carma_wetdep_tend, carma_timestep_tend
     use carma_flags_mod, only: carma_do_detrain, carma_do_cldice, carma_do_cldliq,  carma_do_wetdep
     use radiation,       only: radiation_tend
@@ -1724,12 +1740,13 @@ contains
     use subcol,          only: subcol_gen, subcol_ptend_avg
     use subcol_utils,    only: subcol_ptend_copy, is_subcol_on
     use qneg_module,     only: qneg3
-
+    use aero_model,      only: aero_model_wetdep
 #ifdef OSLO_AERO
-    use commondefinitions
-    use aerosoldef !, only: nmodes
+    use oslo_aero_microp,only: oslo_aero_microp_run
+    use oslo_aero_share
+#else
+    use microp_aero,     only: microp_aero_run
 #endif
-
     implicit none
 
     real(r8), intent(in) :: ztodt                          ! 2 delta t (model time increment)
@@ -1771,16 +1788,16 @@ contains
 
     integer :: i,k,m                           ! Longitude, level, constituent indices
     integer :: ixcldice, ixcldliq              ! constituent indices for cloud liquid and ice water.
-!AL
+    !AL
     integer :: ixcldni, ixcldnc              ! constituent indices for cloud liquid and ice water.
-!AL
+    !AL
     ! for macro/micro co-substepping
     integer :: macmic_it                       ! iteration variables
     real(r8) :: cld_macmic_ztodt               ! modified timestep
-#ifdef OSLO_AERO
-    integer kcomp                              ! mode number (1-14)
-#endif
 
+#ifdef OSLO_AERO
+    integer kcomp                              ! mode number (1-14) oslo_aero
+#endif
     ! physics buffer fields to compute tendencies for stratiform package
     integer itim_old, ifld
     real(r8), pointer, dimension(:,:) :: cld        ! cloud fraction
@@ -1792,10 +1809,10 @@ contains
     real(r8), pointer, dimension(:,:) :: cldliqini
     real(r8), pointer, dimension(:,:) :: cldiceini
     real(r8), pointer, dimension(:,:) :: dtcore
-!AL
+    !AL
     real(r8), pointer, dimension(:,:) :: cldncini
     real(r8), pointer, dimension(:,:) :: cldniini
-!AL
+    !AL
     real(r8), pointer, dimension(:,:,:) :: fracis  ! fraction of transported species that are insoluble
 
     real(r8), pointer :: dlfzm(:,:)                ! ZM detrained convective cloud water mixing ratio.
@@ -1838,55 +1855,7 @@ contains
     real(r8) :: flx_heat(pcols)
     type(check_tracers_data):: tracerint             ! energy integrals and cummulative boundary fluxes
     real(r8) :: zero_tracers(pcols,pcnst)
-
     logical   :: lq(pcnst)
-
-#ifdef AEROCOM
-   real(r8) :: logsig3d(pcols,pver,nmodes) ! Log (log10) of standard deviation for lognormal modes, method 2.
-   real(r8) :: rnew3d(pcols,pver,nmodes)   ! New modal radius from look-up tables, method 2.
-   real(r8) :: logsig1(pcols,pver) ! Log (log10) of standard deviation for lognormal mode 1, method 2.
-   real(r8) :: rnew1(pcols,pver)   ! New modal radius, mode 1, from look-up tables, method 2.
-   real(r8) :: logsig2(pcols,pver) ! Log (log10) of standard deviation for lognormal mode 2, method 2.
-   real(r8) :: rnew2(pcols,pver)   ! New modal radius, mode 2, from look-up tables, method 2.
-   real(r8) :: logsig4(pcols,pver) ! Log (log10) of standard deviation for lognormal mode 4, method 2.
-   real(r8) :: rnew4(pcols,pver)   ! New modal radius, mode 4, from look-up tables, method 2.
-   real(r8) :: logsig5(pcols,pver) ! Log (log10) of standard deviation for lognormal mode 5, method 2.
-   real(r8) :: rnew5(pcols,pver)   ! New modal radius, mode 5, from look-up tables, method 2.
-   real(r8) :: logsig6(pcols,pver) ! Log (log10) of standard deviation for lognormal mode 6, method 2.
-   real(r8) :: rnew6(pcols,pver)   ! New modal radius, mode 6, from look-up tables, method 2.
-   real(r8) :: logsig7(pcols,pver) ! Log (log10) of standard deviation for lognormal mode 7, method 2.
-   real(r8) :: rnew7(pcols,pver)   ! New modal radius, mode 7, from look-up tables, method 2.
-   real(r8) :: logsig8(pcols,pver) ! Log (log10) of standard deviation for lognormal mode 8, method 2.
-   real(r8) :: rnew8(pcols,pver)   ! New modal radius, mode 8, from look-up tables, method 2.
-   real(r8) :: logsig9(pcols,pver) ! Log (log10) of standard deviation for lognormal mode 9, method 2.
-   real(r8) :: rnew9(pcols,pver)   ! New modal radius, mode 9, from look-up tables, method 2.
-   real(r8) :: logsig10(pcols,pver)! Log (log10) of standard deviation for lognormal modes 10, method 2.
-   real(r8) :: rnew10(pcols,pver)  ! New modal radius, mode 10, from look-up tables, method 2.
-   real(r8) :: logsig11(pcols,pver)! Log (log10) of standard deviation for lognormal modes 11, method 2.
-   real(r8) :: rnew11(pcols,pver)  ! New modal radius, mode 11, from look-up tables, method 2.
-   real(r8) :: logsig13(pcols,pver)! Log (log10) of standard deviation for lognormal modes 13, method 2.
-   real(r8) :: rnew13(pcols,pver)  ! New modal radius, mode 13, from look-up tables, method 2.
-   real(r8) :: logsig14(pcols,pver)! Log (log10) of standard deviation for lognormal modes 14, method 2.
-   real(r8) :: rnew14(pcols,pver)  ! New modal radius, mode 14, from look-up tables, method 2.
-   real(r8) :: rnewdry1(pcols,pver)   ! New dry modal radius, mode 1, from look-up tables, method 2.
-   real(r8) :: rnewdry2(pcols,pver)   ! New dry modal radius, mode 2, from look-up tables, method 2.
-   real(r8) :: rnewdry4(pcols,pver)   ! New dry modal radius, mode 4, from look-up tables, method 2.
-   real(r8) :: rnewdry5(pcols,pver)   ! New dry modal radius, mode 5, from look-up tables, method 2.
-   real(r8) :: rnewdry6(pcols,pver)   ! New dry modal radius, mode 6, from look-up tables, method 2.
-   real(r8) :: rnewdry7(pcols,pver)   ! New dry modal radius, mode 7, from look-up tables, method 2.
-   real(r8) :: rnewdry8(pcols,pver)   ! New dry modal radius, mode 8, from look-up tables, method 2.
-   real(r8) :: rnewdry9(pcols,pver)   ! New dry modal radius, mode 9, from look-up tables, method 2.
-   real(r8) :: rnewdry10(pcols,pver)  ! New dry modal radius, mode 10, from look-up tables, method 2.
-   real(r8) :: rnewdry11(pcols,pver)  ! New dry modal radius, mode 11, from look-up tables, method 2.
-   real(r8) :: rnewdry13(pcols,pver)  ! New dry modal radius, mode 13, from look-up tables, method 2.
-   real(r8) :: rnewdry14(pcols,pver)  ! New dry modal radius, mode 14, from look-up tables, method 2.
-   real(r8) :: relhum(pcols,pver)         ! Ambient relative humidity (fraction)
-   real(r8) :: v3so4(pcols,pver,nmodes)  ! Modal mass fraction of Sulfate
-   real(r8) :: v3insol(pcols,pver,nmodes)! Modal mass fraction of BC and dust
-   real(r8) :: v3oc(pcols,pver,nmodes)   ! Modal mass fraction of OC (POM)
-   real(r8) :: v3ss(pcols,pver,nmodes)   ! Modal mass fraction of sea-salt
-   real(r8) :: frh(pcols,pver,nmodes)    ! Modal humidity growth factor
-#endif ! aerocom
     !-----------------------------------------------------------------------
 
     call t_startf('bc_init')
@@ -1910,10 +1879,10 @@ contains
     call pbuf_get_field(pbuf, qini_idx, qini)
     call pbuf_get_field(pbuf, cldliqini_idx, cldliqini)
     call pbuf_get_field(pbuf, cldiceini_idx, cldiceini)
-!AL
+    !AL
     call pbuf_get_field(pbuf, cldncini_idx, cldncini)
     call pbuf_get_field(pbuf, cldniini_idx, cldniini)
-!AL
+    !AL
 
     ifld   =  pbuf_get_index('DTCORE')
     call pbuf_get_field(pbuf, ifld, dtcore, start=(/1,1,itim_old/), kount=(/pcols,pver,1/) )
@@ -1974,12 +1943,12 @@ contains
     qini     (:ncol,:pver) = state%q(:ncol,:pver,       1)
     cldliqini(:ncol,:pver) = state%q(:ncol,:pver,ixcldliq)
     cldiceini(:ncol,:pver) = state%q(:ncol,:pver,ixcldice)
-!AL
+    !AL
     call cnst_get_ind('NUMLIQ', ixcldnc)
     call cnst_get_ind('NUMICE', ixcldni)
     cldncini(:ncol,:pver) = state%q(:ncol,:pver,ixcldnc)
     cldniini(:ncol,:pver) = state%q(:ncol,:pver,ixcldni)
-!AL
+    !AL
 
     call outfld('TEOUT', teout       , pcols, lchnk   )
     call outfld('TEINP', state%te_ini, pcols, lchnk   )
@@ -2034,8 +2003,8 @@ contains
     call pbuf_get_field(pbuf, snow_pcw_idx, snow_pcw )
 
     if (use_subcol_microp) then
-      call pbuf_get_field(pbuf, prec_str_idx, prec_str_sc, col_type=col_type_subcol)
-      call pbuf_get_field(pbuf, snow_str_idx, snow_str_sc, col_type=col_type_subcol)
+       call pbuf_get_field(pbuf, prec_str_idx, prec_str_sc, col_type=col_type_subcol)
+       call pbuf_get_field(pbuf, snow_str_idx, snow_str_sc, col_type=col_type_subcol)
     end if
 
     ! Check energy integrals, including "reserved liquid"
@@ -2076,13 +2045,6 @@ contains
     ! from the stratiform interface has access to the same aerosols as the radiation
     ! code.
     call sslt_rebin_adv(pbuf,  state)
-
-#ifdef OSLO_AERO
-#ifdef AEROCOM
-    rnew3d(:,:,:)  =0.0_r8
-    logsig3d(:,:,:)=0.0_r8
-#endif ! AEROCOM
-#endif ! OSLO_AERO
 
     !===================================================
     ! Calculate tendencies from CARMA bin microphysics.
@@ -2184,8 +2146,8 @@ contains
              ! =====================================================
 
              call clubb_tend_cam(state, ptend, pbuf, cld_macmic_ztodt,&
-                cmfmc, cam_in, macmic_it, cld_macmic_num_steps, &
-                dlf, det_s, det_ice)
+                  cmfmc, cam_in, macmic_it, cld_macmic_num_steps, &
+                  dlf, det_s, det_ice)
 
              ! Since we "added" the reserved liquid back in this routine, we need
              ! to account for it in the energy checker
@@ -2205,10 +2167,10 @@ contains
 
              ! Use actual qflux (not lhf/latvap) for consistency with surface fluxes and revised code
              call check_energy_chng(state, tend, "clubb_tend", nstep, ztodt, &
-                cam_in%cflx(:ncol,1)/cld_macmic_num_steps, &
-                flx_cnd(:ncol)/cld_macmic_num_steps, &
-                det_ice(:ncol)/cld_macmic_num_steps, &
-                flx_heat(:ncol)/cld_macmic_num_steps)
+                  cam_in%cflx(:ncol,1)/cld_macmic_num_steps, &
+                  flx_cnd(:ncol)/cld_macmic_num_steps, &
+                  det_ice(:ncol)/cld_macmic_num_steps, &
+                  flx_heat(:ncol)/cld_macmic_num_steps)
 
           endif
 
@@ -2230,10 +2192,15 @@ contains
              call check_energy_timestep_init(state_sc, tend_sc, pbuf, col_type_subcol)
           end if
 
+#ifdef OSLO_AERO
+          call t_startf('oslo_aero_microp_run')
+          call oslo_aero_microp_run(state, ptend_aero, cld_macmic_ztodt, pbuf)
+          call t_stopf('oslo_aero_microp_run')
+#else
           call t_startf('microp_aero_run')
           call microp_aero_run(state, ptend_aero, cld_macmic_ztodt, pbuf)
           call t_stopf('microp_aero_run')
-
+#endif
           call t_startf('microp_tend')
 
           if (use_subcol_microp) then
@@ -2320,56 +2287,6 @@ contains
        call aero_model_wetdep( state, ztodt, dlf, cam_out, ptend, pbuf)
        call physics_update(state, ptend, ztodt, tend)
 
-#ifdef OSLO_AERO
-#ifdef AEROCOM
-!  Estimating hygroscopic growth by use of linear interpolation w.r.t. mass
-!  fractions of each internally mixed component for each mode (kcomp).
-!
-   call intfrh(lchnk, ncol, v3so4, v3insol, v3oc, v3ss, relhum, frh)
-!
-   do k=1,pver
-      do i=1,ncol
-        rnewdry1(i,k)   = rnew3d(i,k,1)
-        rnewdry2(i,k)   = rnew3d(i,k,2)
-        rnewdry4(i,k)   = rnew3d(i,k,4)
-        rnewdry5(i,k)   = rnew3d(i,k,5)
-        rnewdry6(i,k)   = rnew3d(i,k,6)
-        rnewdry7(i,k)   = rnew3d(i,k,7)
-        rnewdry8(i,k)   = rnew3d(i,k,8)
-        rnewdry9(i,k)   = rnew3d(i,k,9)
-        rnewdry10(i,k)  = rnew3d(i,k,10)
-        rnewdry11(i,k)  = rnew3d(i,k,11)
-        rnewdry13(i,k)  = rnew3d(i,k,13)
-        rnewdry14(i,k)  = rnew3d(i,k,14)
-        rnew1(i,k)   = rnew3d(i,k,1)*frh(i,k,1)
-        rnew2(i,k)   = rnew3d(i,k,2)*frh(i,k,2)
-        rnew4(i,k)   = rnew3d(i,k,4)*frh(i,k,4)
-        rnew5(i,k)   = rnew3d(i,k,5)*frh(i,k,5)
-        rnew6(i,k)   = rnew3d(i,k,6)*frh(i,k,6)
-        rnew7(i,k)   = rnew3d(i,k,7)*frh(i,k,7)
-        rnew8(i,k)   = rnew3d(i,k,8)*frh(i,k,8)
-        rnew9(i,k)   = rnew3d(i,k,9)*frh(i,k,9)
-        rnew10(i,k)  = rnew3d(i,k,10)*frh(i,k,10)
-        rnew11(i,k)  = rnew3d(i,k,11)*frh(i,k,11)
-        rnew13(i,k)  = rnew3d(i,k,13)*frh(i,k,13)
-        rnew14(i,k)  = rnew3d(i,k,14)*frh(i,k,14)
-        logsig1(i,k) = logsig3d(i,k,1)
-        logsig2(i,k) = logsig3d(i,k,2)
-        logsig4(i,k) = logsig3d(i,k,4)
-        logsig5(i,k) = logsig3d(i,k,5)
-        logsig6(i,k) = logsig3d(i,k,6)
-        logsig7(i,k) = logsig3d(i,k,7)
-        logsig8(i,k) = logsig3d(i,k,8)
-        logsig9(i,k) = logsig3d(i,k,9)
-        logsig10(i,k)= logsig3d(i,k,10)
-        logsig11(i,k)= logsig3d(i,k,11)
-        logsig13(i,k)= logsig3d(i,k,13)
-        logsig14(i,k)= logsig3d(i,k,14)
-      end do
-   end do
-#endif ! AEROCOM
-#endif ! OSLO_AERO
-
        if (carma_do_wetdep) then
           ! CARMA wet deposition
           !
@@ -2392,7 +2309,7 @@ contains
 
        call t_stopf('bc_aerosols')
 
-   endif
+    end if 
 
     !===================================================
     ! Moist physical parameteriztions complete:
@@ -2422,7 +2339,7 @@ contains
 
 
     call radiation_tend( &
-       state, ptend, pbuf, cam_out, cam_in, net_flx)
+         state, ptend, pbuf, cam_out, cam_in, net_flx)
 
     ! Set net flux used by spectral dycores
     do i=1,ncol
@@ -2487,7 +2404,7 @@ subroutine phys_timestep_init(phys_state, cam_in, cam_out, pbuf2d)
   use iop_forcing,         only: scam_use_iop_srf
   use nudging,             only: Nudge_Model, nudging_timestep_init
 #ifdef OSLO_AERO
-  use oslo_ocean_intr,     only: oslo_ocean_time
+  use oslo_aero_ocean,     only: oslo_aero_ocean_time
 #endif
 
   implicit none
@@ -2524,7 +2441,7 @@ subroutine phys_timestep_init(phys_state, cam_in, cam_out, pbuf2d)
   call prescribed_volcaero_adv(phys_state, pbuf2d)
   call prescribed_strataero_adv(phys_state, pbuf2d)
 #ifdef OSLO_AERO
-  call oslo_ocean_time(phys_state, pbuf2d)
+  call oslo_aero_ocean_time(phys_state, pbuf2d)
 #endif
 
   ! prescribed aerosol deposition fluxes

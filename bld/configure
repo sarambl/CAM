@@ -1439,7 +1439,7 @@ if ($chem_pkg =~ '_mam3') {
 }
 
 if ($chem_pkg =~ '_oslo') {
- $chem_cppdefs = ' -DOSLO_AERO -DDIRIND'
+    $chem_cppdefs = ' -DOSLO_AERO'
 }
 
 # CARMA sectional microphysics
@@ -2779,7 +2779,7 @@ sub write_filepath
         }
     }
 
-    # CESM has a standard source mods location.
+    # Standard source mods location.
     if ($ccsm_seq) {
         my $CASEROOT = "$ENV{'CASEROOT'}";
         print $fh "$CASEROOT/SourceMods/src.cam\n";
@@ -2817,8 +2817,9 @@ sub write_filepath
         print $fh "$chem_src_dir\n";
     }
     if ($chem =~/_oslo/) {
-         print $fh "$camsrcdir/cam/src/chemistry/oslo_aero\n";
-         print $fh "$camsrcdir/cam/src/physics/cam_oslo\n";
+        # print $fh "$camsrcdir/src/chemistry/oslo_aero/object\n"; BUG: this does not compile
+        print $fh "$camsrcdir/cam/src/chemistry/oslo_aero/src\n";
+        print $fh "$camsrcdir/cam/src/chemistry/oslo_aero/src_cam\n";
     } else {
         if ($chem =~ /_mam/) {
             print $fh "$camsrcdir/cam/src/chemistry/modal_aero\n";
