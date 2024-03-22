@@ -1025,7 +1025,7 @@
 
 <!-- prescribed oxidants for prognostic aerosol chemistry -->
 <tracer_cnst_file     ver="fixed_ox">oxid_1.9x2.5_L26_1850-2005_c091123.nc</tracer_cnst_file>
-                                              
+
 <!-- prescribed oxidants for prognostic aerosol chemistry -lightweight set for running SCAM and producing SCAM IOP boundary data -->
 <tracer_cnst_file     phys="cam6"  ver="fixed_ox" scam="1">oxid_1.9x2.5_L26_1850clim_c091123.nc</tracer_cnst_file>
 <tracer_cnst_cycle_yr phys="cam6"  ver="fixed_ox" scam="1">1850</tracer_cnst_cycle_yr>
@@ -1197,8 +1197,11 @@
 <clubb_lambda0_stability_coef                     > 0.04    </clubb_lambda0_stability_coef>
 <clubb_l_lscale_plume_centered                    > .false. </clubb_l_lscale_plume_centered>
 <clubb_l_use_ice_latent                           > .false.  </clubb_l_use_ice_latent>
-<clubb_do_liqsupersat                             > .false. </clubb_do_liqsupersat>
+<clubb_do_liqsupersat                             >
+.false. </clubb_do_liqsupersat>
 
+<!-- CLUBB NorESM -->
+<clubb_meltpt_temp> 268.15 </clubb_meltpt_temp>
 
 <!-- Microphysics scheme -->
 <microp_scheme                          >NONE         </microp_scheme>
