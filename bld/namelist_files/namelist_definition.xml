@@ -2647,6 +2647,12 @@ Add diagnostic output for heterogeneous freezing code.
 Default: .false.
 </entry>
 
+<entry id="hetfrz_aer_scalfac" type="real" category="microphys"
+       group="hetfrz_classnuc_nl" valid_values="" >
+Scaling factor for aerosols
+Default: 0.001
+</entry>
+
 <entry id="use_preexisting_ice" type="logical" category="microphys"
        group="nucleate_ice_nl" valid_values="" >
 Switch to turn on treatment of pre-existing ice in the ice nucleation code.
