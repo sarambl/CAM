@@ -13,7 +13,7 @@ module string_utils
       GLC,      & ! Position of last significant character in string
       int2str
 
-   private: LASTND
+   private :: LASTND
 
 !=============================================================================
 contains
