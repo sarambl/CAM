@@ -3138,6 +3138,9 @@ if ($clubb_sgs  =~ /$TRUE/io) {
    add_default($nl, 'clubb_l_use_ice_latent');
    add_default($nl, 'clubb_do_liqsupersat');
    add_default($nl, "clubb_meltpt_temp");
+
+   add_default($nl, "clubb_meltpt_temp");
+   add_default($nl, "clubb_dt_low");
 }
 
 # Tuning for wet scavenging of modal aerosols

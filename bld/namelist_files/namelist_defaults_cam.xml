@@ -1201,8 +1201,10 @@
 .false. </clubb_do_liqsupersat>
 
 <!-- CLUBB NorESM -->
-<clubb_meltpt_temp>243.15D0</clubb_meltpt_temp>
-<clubb_dt_low>238.15D0</clubb_dt_low>
+<clubb_meltpt_temp           >268.15D0</clubb_meltpt_temp>
+<clubb_meltpt_temp camnor="1">243.15D0</clubb_meltpt_temp>
+<clubb_dt_low                >238.15D0</clubb_dt_low>
+<clubb_dt_low camnor="1"     >238.15D0</clubb_dt_low>
 
 <!-- Microphysics scheme -->
 <microp_scheme                          >NONE         </microp_scheme>
@@ -1252,7 +1254,8 @@
 <use_hetfrz_classnuc phys="cam6"         >.true.</use_hetfrz_classnuc>
 <use_hetfrz_classnuc chem="trop_mam_oslo">.true.</use_hetfrz_classnuc>
 
-<hetfrz_aer_scalfac>0.001D0</hetfrz_aer_scalfac>
+<hetfrz_aer_scalfac           >1.0D0</hetfrz_aer_scalfac>
+<hetfrz_aer_scalfac camnor="1">0.001D0</hetfrz_aer_scalfac>
 
 <use_preexisting_ice            >.false.</use_preexisting_ice>
 <use_preexisting_ice phys="cam6">.true.</use_preexisting_ice>
