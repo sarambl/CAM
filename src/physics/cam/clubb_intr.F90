@@ -569,7 +569,7 @@ end subroutine clubb_init_cnst
       l_stability_correct_Kh_N2_zm = .true.   ! CLUBB flag set to true
     endif
 
-    if (clubb_dt_low > clubb_meltpt_temp) then
+    if (clubb_dt_low >= clubb_meltpt_temp) then
        call endrun(sub//": ERROR: clubb_dt_low must be less than clubb_meltpt_temp")
     else
        meltpt_temp = clubb_meltpt_temp

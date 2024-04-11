@@ -22,7 +22,7 @@
     <desc option="2xCO2" >abrupt doubling of CO2 with other forcings maintained at 1850 piControl levels :</desc>
     <desc option="1PCT"  >ramped CO2 increasing by 1% per year with other forcings maintained at 1850 piControl levels (CMIP6 DECK 1pctCO2 experiment) :</desc>
 
-    <desc atm="CAM60%NORESM" >cam 6 and general NorESM  changes + Production tagged aerosols (OSLO_AERO)</desc>
+    <desc atm="CAM60%NORESM" >CAM 6, general NorESM changes, and production tagged aerosols (OSLO_AERO)</desc>
 
   <!--
     ===============
