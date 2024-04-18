@@ -403,6 +403,7 @@ end subroutine clubb_init_cnst
 #ifdef CLUBB_SGS
     use namelist_utils,  only: find_group_name
     use cam_abortutils,  only: endrun
+    use cam_logfile,     only: iulog
     use stats_variables, only: l_stats, l_output_rad_files
     use spmd_utils,      only: mpicom, mstrid=>masterprocid, mpi_logical, mpi_real8
     use clubb_api_module, only: l_diffuse_rtm_and_thlm, l_stability_correct_Kh_N2_zm
@@ -459,6 +460,18 @@ end subroutine clubb_init_cnst
          end if
       end if
 
+      call find_group_name(iunit, 'clubb_noresm_nl', status=read_status)
+      if (read_status == 0) then
+         read(unit=iunit, nml=clubb_noresm_nl, iostat=read_status)
+         if (read_status /= 0) then
+            call endrun('clubb_readnl: error reading namelist clubb_noresm_nl')
+         end if
+         write(iulog, '(a, f8.2)') "clubb_meltpt_temp =", clubb_meltpt_temp
+         write(iulog, '(a, f8.2)') "clubb_dt_low      =", clubb_dt_low  
+      else
+         call endrun('clubb_readnl: clubb_noresm_nl not found, must be present')
+      end if
+
       call find_group_name(iunit, 'clubb_params_nl', status=read_status)
       if (read_status == 0) then
          read(unit=iunit, nml=clubb_params_nl, iostat=read_status)
@@ -474,14 +487,6 @@ end subroutine clubb_init_cnst
          read(unit=iunit, nml=clubbpbl_diff_nl, iostat=read_status)
          if (read_status /= 0) then
             call endrun('clubb_readnl:  error reading namelist clubbpbl_diff_nl')
-         end if
-      end if
-
-      call find_group_name(iunit, 'clubb_noresm_nl', status=read_status)
-      if (read_status == 0) then
-         read(unit=iunit, nml=clubb_noresm_nl, iostat=read_status)
-         if (read_status /= 0) then
-            call endrun('clubb_readnl:  error reading namelist clubb_noresm_nl')
          end if
       end if
 
