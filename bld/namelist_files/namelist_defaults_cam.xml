@@ -1196,9 +1196,8 @@
 <clubb_mult_coef                                  > 1.0D0   </clubb_mult_coef>
 <clubb_lambda0_stability_coef                     > 0.04    </clubb_lambda0_stability_coef>
 <clubb_l_lscale_plume_centered                    > .false. </clubb_l_lscale_plume_centered>
-<clubb_l_use_ice_latent                           > .false.  </clubb_l_use_ice_latent>
-<clubb_do_liqsupersat                             >
-.false. </clubb_do_liqsupersat>
+<clubb_l_use_ice_latent                           > .false. </clubb_l_use_ice_latent>
+<clubb_do_liqsupersat                             > .false. </clubb_do_liqsupersat>
 
 <!-- CLUBB NorESM -->
 <clubb_meltpt_temp           >268.15D0</clubb_meltpt_temp>
