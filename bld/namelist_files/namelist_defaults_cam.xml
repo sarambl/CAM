@@ -1339,12 +1339,7 @@
 <dust_emis_fact hgrid="1.9x2.5"   offline_dyn="1" phys="cam6" ver="chem">0.24D0</dust_emis_fact>
 <dust_emis_fact hgrid="0.47x0.63" offline_dyn="1" phys="cam6" ver="chem">0.9D0</dust_emis_fact>
 
-<!-- djlo commented out because not up-to-date-->
-<!--dust_emis_fact dyn="fv" hgrid="1.9x2.5" chem="trop_mam_oslo">0.40</dust_emis_fact-->
-<!--dust_emis_fact dyn="fv" hgrid="0.9x1.25" chem="trop_mam_oslo">0.40</dust_emis_fact-->
-<!--dust_emis_fact dyn="fv" hgrid="1.9x2.5" chem="trop_mam_oslo" clubb_sgs="1" >0.48</dust_emis_fact-->
-<!--dust_emis_fact dyn="fv" hgrid="0.9x1.25" chem="trop_mam_oslo" clubb_sgs="1" >0.40</dust_emis_fact-->
-<!-- djlo commented out because not up-to-date-->
+<dust_active>.true.</dust_active>
 
 <!-- seasalt emission tuning factor -->
 <!-- Note that ver="strat" when modal_accum_coarse_exch=.true. -->
