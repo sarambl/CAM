@@ -708,6 +708,9 @@ subroutine kk2000_liq_autoconversion(microp_uniform, qcic, &
   real(r8), intent(in), optional :: micro_mg_autocon_nd_exp
   real(r8), intent(in), optional :: micro_mg_autocon_lwp_exp
 
+  real(r8) :: nd_exp
+  real(r8) :: lwp_exp
+
   integer :: i
 
   ! Assign default values if optional arguments are not provided
@@ -742,8 +745,8 @@ subroutine kk2000_liq_autoconversion(microp_uniform, qcic, &
         ! micro_mg_autocon_nd_exp=-1.1_r8
 
         prc(i) = prc_coef(i) * &
-             0.01_r8 * 1350._r8 * qcic(i)**micro_mg_autocon_lwp_exp * &
-              (ncic(i)*1.e-6_r8*rho(i))**(micro_mg_autocon_nd_exp)
+             0.01_r8 * 1350._r8 * qcic(i)**lwp_exp * &
+              (ncic(i)*1.e-6_r8*rho(i))**(nd_exp)
         nprc(i) = prc(i) * (1._r8/droplet_mass_25um)
         nprc1(i) = prc(i)*ncic(i)/qcic(i)
 
