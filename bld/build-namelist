@@ -3040,7 +3040,8 @@ if ($cfg->get('microphys') =~ /^mg/) {
     add_default($nl, 'micro_mg_dcs');
     add_default($nl, 'micro_mg_precip_frac_method');
     add_default($nl, 'micro_mg_berg_eff_factor');
-
+    add_default($nl, 'micro_mg_autocon_nd_exp');
+    add_default($nl, 'micro_mg_autocon_lwp_exp');
 
 
     # For CESM2, the decision was made to set micro_do_sb_physics to false

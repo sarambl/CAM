@@ -2628,6 +2628,18 @@ In-cloud ice number concentration when micro_mg_nicons=.true.
 Default: 0.1e6 m-3
 </entry>
 
+<entry id="micro_mg_autocon_nd_exp" type="real" category="microphys"
+       group="micro_mg_nl" valid_values="" >
+Unitless exponent of cloud number condensation in the KK autoconversion parameterization equation. See Khairoutdinov and Kogan, 2002.
+Default: -1.1
+</entry>
+
+<entry id="micro_mg_autocon_lwp_exp" type="real" category="microphys"
+       group="micro_mg_nl" valid_values="" >
+Unitless exponent of liquid water path in the KK autoconversion parameterization equation. See Khairoutdinov and Kogan, 2002.
+Default: 2.47
+</entry>
+
 <!-- Aerosol microphysics -->
 <entry id="microp_aero_bulk_scale" type="real" category="microphys"
        group="microp_aero_nl" valid_values="" >

@@ -1304,7 +1304,8 @@ subroutine micro_mg_tend ( &
 
      if (.not. do_sb_physics) then
        call kk2000_liq_autoconversion(microp_uniform, qcic(1:mgncol,k), &
-          ncic(:,k), rho(:,k), relvar(:,k), prc(:,k), nprc(:,k), nprc1(:,k), mgncol)
+          ncic(:,k), rho(:,k), relvar(:,k), prc(:,k), nprc(:,k), nprc1(:,k), &
+          micro_mg_autocon_nd_exp, micro_mg_autocon_lwp_exp,mgncol)
      endif
 
      ! assign qric based on prognostic qr, using assumed precip fraction

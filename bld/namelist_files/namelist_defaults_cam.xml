@@ -1223,6 +1223,12 @@
 <micro_mg_num_steps   microphys="mg2">                                 1          </micro_mg_num_steps>
 <micro_mg_dcs         microphys="mg2">                                 500.D-6    </micro_mg_dcs>
 
+<micro_mg_autocon_nd_exp                  >  -1.1D0    </micro_mg_autocon_nd_exp>
+<micro_mg_autocon_nd_exp microphys="mg2"  >  -1.1D0    </micro_mg_autocon_nd_exp>
+
+<micro_mg_autocon_lwp_exp                  >  2.47D0    </micro_mg_autocon_lwp_exp>
+<micro_mg_autocon_lwp_exp microphys="mg2"  >  2.47D0    </micro_mg_autocon_lwp_exp>
+
 <micro_mg_precip_frac_method                        >  max_overlap </micro_mg_precip_frac_method>
 <micro_mg_precip_frac_method   clubb_sgs="1"        >  in_cloud    </micro_mg_precip_frac_method>
 
