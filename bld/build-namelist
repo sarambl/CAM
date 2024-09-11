@@ -3029,15 +3029,19 @@ if ($cfg->get('microphys') =~ /^mg/) {
     add_default($nl, 'micro_mg_sub_version');
     add_default($nl, 'micro_mg_num_steps');
     add_default($nl, 'micro_mg_adjust_cpt');
+    add_default($nl, 'microp_aero_wsub_min');
+    add_default($nl, 'microp_aero_wsubi_min');
     add_default($nl, 'nucleate_ice_subgrid');
     add_default($nl, 'nucleate_ice_subgrid_strat');
     add_default($nl, 'nucleate_ice_use_troplev');
+    add_default($nl, 'nucleate_ice_incloud');
+    add_default($nl, 'nucleate_ice_strat');
     add_default($nl, 'cld_macmic_num_steps', 'dtime'=>$dtime);
     add_default($nl, 'micro_mg_dcs');
     add_default($nl, 'micro_mg_precip_frac_method');
     add_default($nl, 'micro_mg_berg_eff_factor');
-    add_default($nl, 'nucleate_ice_incloud');
-    add_default($nl, 'nucleate_ice_strat');
+
+
 
     # For CESM2, the decision was made to set micro_do_sb_physics to false
     add_default($nl, 'micro_do_sb_physics', 'val'=>'.false.');
