@@ -1372,6 +1372,9 @@
 <seasalt_emis_scale  spcam_clubb_sgs="1" phys="spcam_sam1mom"            >1.00D0</seasalt_emis_scale >
 <seasalt_emis_scale  spcam_clubb_sgs="1" phys="spcam_m2005"              >1.00D0</seasalt_emis_scale >
 
+<!-- convective scavenging of aerosols -->
+<f_act_conv_coarse_dust>0.40D0</f_act_conv_coarse_dust>
+
 <!-- sub-column switches for physics packages -->
 <use_subcol_microp>.false.</use_subcol_microp>
 <subcol_scheme    >off    </subcol_scheme>

@@ -4929,6 +4929,12 @@ Tuning for in-cloud scavenging of cloud-borne modal aerosols.
 Default: set by build-namelist.
 </entry>
 
+<entry id="f_act_conv_coarse_dust" type="real" category="cam_chem"
+       group="oslo_aero_depos_nl" valid_values="" >
+Convetive scavenging coefficient for coarse dust
+Default: set by build-namelist.
+</entry>
+
 <entry id="seasalt_emis_scale" type="real" category="cam_chem"
        group="aerosol_nl" valid_values="" >
 Tuning for seasalt_emis
