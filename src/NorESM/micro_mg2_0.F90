@@ -225,6 +225,9 @@ real(r8) :: xxls_squared
 character(len=16)  :: micro_mg_precip_frac_method  ! type of precipitation fraction method
 real(r8)           :: micro_mg_berg_eff_factor     ! berg efficiency factor
 
+real(r8) :: autocon_nd_exp
+real(r8) :: autocon_lwp_exp
+
 logical  :: allow_sed_supersat ! Allow supersaturated conditions after sedimentation loop
 logical  :: do_sb_physics ! do SB 2001 autoconversion or accretion physics
 
@@ -239,7 +242,8 @@ subroutine micro_mg_init( &
      microp_uniform_in, do_cldice_in, use_hetfrz_classnuc_in, &
      micro_mg_precip_frac_method_in, micro_mg_berg_eff_factor_in, &
      allow_sed_supersat_in, do_sb_physics_in, &
-     nccons_in, nicons_in, ncnst_in, ninst_in, errstring)
+     nccons_in, nicons_in, ncnst_in, ninst_in, &
+     micro_mg_autocon_lwp_exp_in, micro_mg_autocon_nd_exp_in, errstring)
 
   use micro_mg_utils, only: micro_mg_utils_init
 
@@ -279,7 +283,8 @@ subroutine micro_mg_init( &
   logical,  intent(in)  :: nicons_in
   real(r8), intent(in)  :: ncnst_in
   real(r8), intent(in)  :: ninst_in
-
+  real(r8), intent(in)  :: micro_mg_autocon_lwp_exp_in
+  real(r8), intent(in)  :: micro_mg_autocon_nd_exp_in
   character(128), intent(out) :: errstring    ! Output status (non-blank for error return)
 
   !-----------------------------------------------------------------------
@@ -304,6 +309,8 @@ subroutine micro_mg_init( &
   micro_mg_berg_eff_factor    = micro_mg_berg_eff_factor_in
   allow_sed_supersat          = allow_sed_supersat_in
   do_sb_physics               = do_sb_physics_in
+  autocon_nd_exp              = micro_mg_autocon_nd_exp_in
+  autocon_lwp_exp             = micro_mg_autocon_lwp_exp_in
 
   nccons = nccons_in
   nicons = nicons_in
@@ -1389,7 +1396,8 @@ subroutine micro_mg_tend ( &
 
      if (.not. do_sb_physics) then
        call kk2000_liq_autoconversion(microp_uniform, qcic(1:mgncol,k), &
-          ncic(:,k), rho(:,k), relvar(:,k), prc(:,k), nprc(:,k), nprc1(:,k), mgncol)
+          ncic(:,k), rho(:,k), relvar(:,k), prc(:,k), nprc(:,k), nprc1(:,k), &
+          autocon_nd_exp, autocon_lwp_exp, mgncol)
      endif
 
      ! assign qric based on prognostic qr, using assumed precip fraction

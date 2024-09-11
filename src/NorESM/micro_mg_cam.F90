@@ -107,14 +107,14 @@ public :: &
    micro_mg_cam_init,            &
    micro_mg_cam_tend,            &
    micro_mg_version
-
+real(r8), parameter :: unset_r8 = huge(1.0_r8)
 integer :: micro_mg_version     = 1      ! Version number for MG.
 integer :: micro_mg_sub_version = 0      ! Second part of version number.
 
 real(r8) :: micro_mg_dcs = -1._r8
 
-real(r8) :: micro_mg_autocon_lwp_exp = unset_r8 ! autoconversion exponent for liquid water path
-real(r8) :: micro_mg_autocon_nd_exp  = unset_r8 ! autoconversion exponent for droplet number
+real(r8), public :: micro_mg_autocon_lwp_exp = unset_r8 ! autoconversion exponent for liquid water path
+real(r8), public :: micro_mg_autocon_nd_exp  = unset_r8 ! autoconversion exponent for droplet number
 
 logical :: microp_uniform       = .false.
 logical :: micro_mg_adjust_cpt  = .false.
@@ -729,7 +729,7 @@ subroutine micro_mg_cam_init(pbuf2d)
               micro_mg_precip_frac_method, micro_mg_berg_eff_factor, &
               allow_sed_supersat, micro_do_sb_physics,          &
               micro_mg_nccons, micro_mg_nicons, micro_mg_ncnst, &
-              micro_mg_ninst, errstring)
+              micro_mg_ninst,micro_mg_autocon_lwp_exp,micro_mg_autocon_nd_exp, errstring)
       end select
    end select
 
