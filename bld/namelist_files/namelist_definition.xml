@@ -5064,10 +5064,17 @@ Default: set by build-namelist.
 Tuning parameter for dust emissions.
 Default: set by build-namelist.
 </entry>
-<entry id="dust_active" typde="logical" category="cam_chem"
+<entry id="dust_active" type="logical" category="cam_chem"
        group="dust_nl" valid_values="" >
 Disable active dust emissions if FALSE.
 Default: TRUE.
+</entry>
+
+<entry id="emis_fact_in_coarse_mode" type="real" category="cam_chem"
+       group="dust_nl" valid_values="" >
+Tuning parameter for the fraction of dust emissions in the coarse mode, 
+relative to the fine mode. I.E fine mode fraction = 1 - emis_fact_in_coarse_mode.
+Default: set by build-namelist.
 </entry>
 
 <entry id="steady_state_ion_elec_temp" type="logical" category="waccmx"

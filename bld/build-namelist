@@ -3287,6 +3287,7 @@ if ($cfg->get('microphys') eq 'rk') {
 # Dust emissions tuning factor
 # If dust is prognostic ==> supply the tuning factor
 if ( length($nl->get_value('soil_erod_file'))>0 ) {
+    add_default($nl, 'emis_fact_in_coarse_mode');
     # check whether turbulent mountain stress parameterization is on
     if ($nl->get_value('do_tms') =~ /$TRUE/io) {
         add_default($nl, 'dust_emis_fact', 'tms'=>'1');
@@ -3306,6 +3307,7 @@ if ( length($nl->get_value('soil_erod_file'))>0 ) {
     }
 }
 else {
+     add_default($nl, 'emis_fact_in_coarse_mode');
      add_default($nl, 'dust_active', 'val'=>'.false.')
 }
 

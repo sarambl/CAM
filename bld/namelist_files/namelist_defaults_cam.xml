@@ -1345,7 +1345,10 @@
 <dust_emis_fact hgrid="1.9x2.5"   offline_dyn="1" phys="cam6" ver="chem">0.24D0</dust_emis_fact>
 <dust_emis_fact hgrid="0.47x0.63" offline_dyn="1" phys="cam6" ver="chem">0.9D0</dust_emis_fact>
 
+<!-- dust switch for interactive emissions -->
 <dust_active>.true.</dust_active>
+<emis_fact_in_coarse_mode chem="trop_mam_oslo">0.87D0</emis_fact_in_coarse_mode>
+
 
 <!-- seasalt emission tuning factor -->
 <!-- Note that ver="strat" when modal_accum_coarse_exch=.true. -->
