@@ -1960,6 +1960,7 @@
 <focndomain hgrid="1.9x2.5" ocn="som">atm/cam/ocnfrac/domain.aqua.fv1.9x2.5.nc</focndomain>
 
 <!-- CAM-Oslo variables -->
+<use_aerocom>.false.</use_aerocom>
 <dme_energy_adjust>.true.</dme_energy_adjust>
 <volc_fraction_coarse   >0.0</volc_fraction_coarse>
 <aerotab_table_dir>noresm-only/atm/cam/camoslo/AeroTab_8jun17/</aerotab_table_dir>
