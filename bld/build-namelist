@@ -1065,6 +1065,8 @@ if ($chem =~ /_mam_oslo/) {$aer_model = 'oslo';}
 
 if ($aer_model eq 'oslo') {
    #do nothing here
+   add_default($nl, 'oslo_aero_lifecyclenumbermedianradius');
+
 }
 elsif ($aer_model eq 'mam' ) {
 
