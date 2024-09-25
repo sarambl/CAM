@@ -2641,6 +2641,19 @@ Default: 2.47
 </entry>
 
 <!-- Aerosol microphysics -->
+<!-- smb: 2016-06-01: Added new namelist variables for aerosol microphysics -->
+<entry id="lifecyclenmr_1" type="real" category="microphys"
+       group="oslo_aero_share_nl" valid_values="" >
+    Assumed life cycle number median radius for mixture 1.
+    Default: 0.025-6 m
+</entry>
+<!-- smb: 2016-06-01: Added new namelist variables for aerosol microphysics -->
+<entry id="lifecyclenmr_8" type="real" category="microphys"
+       group="oslo_aero_share_nl" valid_values="" >
+    Assumed life cycle number median radius for mixture 8.
+    Default: 0.0475e-6 m
+    </entry>
+
 <entry id="microp_aero_bulk_scale" type="real" category="microphys"
        group="microp_aero_nl" valid_values="" >
 prescribed aerosol bulk sulfur scale factor
