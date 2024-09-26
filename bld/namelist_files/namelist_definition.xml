@@ -2647,6 +2647,24 @@ Default: 2.47
     Assumed life cycle number median radius for mixtures 0-14.
     Default: set by built namelist
 </entry>
+<entry id="oslo_aero_lifecyclesigma" type="real(15)" category="microphys"
+       group="oslo_aero_share_nl" valid_values="" >
+    Assumed life cycle number median radius for mixtures 0-14.
+    Default: set by built namelist
+</entry>
+
+
+<entry id="oslo_aero_n_so4_monolayers_age" type="real" category="microphys"
+       group="oslo_aero_condtend_nl" valid_values="" >
+    Number of so4 monolayers before particle counted as aged.
+    Default: set by built namelist
+</entry>
+
+<entry id="oslo_aero_nucl_scaling_factor" type="real" category="microphys"
+       group="oslo_aero_condtend_nl" valid_values="" >
+    Scaling factor for nucleation.
+    Default: 1
+</entry>
 <!-- smb: 2016-06-01: Added new namelist variables for aerosol microphysics -->
 
 <entry id="microp_aero_bulk_scale" type="real" category="microphys"
@@ -4941,6 +4959,12 @@ Default: set by build-namelist.
        group="oslo_aero_depos_nl" valid_values="" >
 Convetive scavenging coefficient for coarse dust
 Default: set by build-namelist.
+</entry>
+
+<entry id="oslo_aero_f_act_conv_interstitial" type="real" category="cam_chem"
+       group="oslo_aero_depos_nl" valid_values="" >
+    Convetive scavenging coefficient for interstitial aerosols
+    Default: 0.8
 </entry>
 
 <entry id="seasalt_emis_scale" type="real" category="cam_chem"

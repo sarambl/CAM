@@ -1377,6 +1377,16 @@
     0.025D-6, 0.025D-6 , 0.04D-6,   0.06D-6,   0.075D-6,
     0.22D-6,   0.63D-6,  0.0475D-6, 0.30D-6,   0.75D-6,
     0.0118D-6, 0.024D-6, 0.04D-6  , 0.04D-6  </oslo_aero_lifecyclenumbermedianradius>
+<oslo_aero_lifecyclesigma> 1.6D0,
+    1.8D0, 1.8D0, 1.8D0, 1.8D0,
+    1.59D0, 1.59D0, 2.0D0,
+    2.1D0, 1.72D0, 1.6D0,
+    1.8D0, 1.8D0, 1.8D0, 1.8D0  </oslo_aero_lifecyclesigma>
+
+<oslo_aero_nucl_scaling_factor>1.0D0</oslo_aero_nucl_scaling_factor>
+<oslo_aero_n_so4_monolayers_age>3.0D0</oslo_aero_n_so4_monolayers_age>
+<oslo_aero_f_act_conv_interstitial>0.8D0</oslo_aero_f_act_conv_interstitial>
+
 
 <!-- convective scavenging of aerosols -->
 <f_act_conv_coarse_dust>0.40D0</f_act_conv_coarse_dust>

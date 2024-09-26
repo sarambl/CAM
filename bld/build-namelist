@@ -1066,6 +1066,10 @@ if ($chem =~ /_mam_oslo/) {$aer_model = 'oslo';}
 if ($aer_model eq 'oslo') {
    #do nothing here
    add_default($nl, 'oslo_aero_lifecyclenumbermedianradius');
+   add_default($nl, 'oslo_aero_lifecyclesigma');
+   add_default($nl, 'oslo_aero_nucl_scaling_factor');
+   add_default($nl, 'oslo_aero_n_so4_monolayers_age');
+   add_default($nl, 'oslo_aero_f_act_conv_interstitial');
 
 }
 elsif ($aer_model eq 'mam' ) {
