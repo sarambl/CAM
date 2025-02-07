@@ -666,7 +666,7 @@ my $rad_prog_bcarb = (($prog_species =~ "BC"   or $aero_chem) and !($chem_rad_pa
 my $rad_prog_sulf  = (($prog_species =~ "SO4"  or $aero_chem) and !($chem_rad_passive));
 my $rad_prog_dust  = (($prog_species =~ "DST"  or $aero_chem) and !($chem_rad_passive));
 my $rad_prog_sslt  = (($prog_species =~ "SSLT" or $aero_chem) and !($chem_rad_passive));
-my $rad_prog_ozone = (($chem =~ "mozart" or $chem =~ "waccm_ma" or $chem =~ "tsmlt" or $chem =~ "trop_strat") and !($chem_rad_passive));
+my $rad_prog_ozone = (($chem =~ "mozart" or $chem =~ "waccm_ma" or $chem =~ "tsmlt" or $chem =~ "trop_strat" or $chem =~"tropstrat_mam_oslo") and !($chem_rad_passive));
 
 # Check for eruptive volcano emissions.  These will be radiatively active by default, but
 # only if using BAM and the camrt radiation package
@@ -1658,7 +1658,7 @@ elsif ($carma eq 'tholin') {
 # turn on stratospheric aerosol forcings in CAM6 configurations
 my $chem_has_ocs = chem_has_species($cfg, 'OCS');
 # djlo
-if ($phys =~ /cam6/ and $chem ne 'trop_mam_oslo') {
+if ($phys =~ /cam6/ and $chem ne 'trop_mam_oslo' and $chem ne 'tropstrat_mam_oslo') {
   # turn on volc forcings in cam6 -- prognostic or prescribed
   if ( $chem_has_ocs ) {
       # turn on prognostic stratospheric aerosols
@@ -2232,7 +2232,7 @@ if ($chem eq 'trop_mam3') {
     }
 }
 
-if ($chem eq 'trop_mam_oslo' ) {
+if ($chem eq 'trop_mam_oslo' or $chem eq 'tropstrat_mam_oslo') {
 
     my %species;
 
@@ -2296,26 +2296,41 @@ if ($chem eq 'trop_mam_oslo' ) {
     }
 
     # Prescribed species
-    add_default($nl, 'tracer_cnst_specifier', 'val'=>"'O3','OH','NO3','HO2'");
-    unless (defined $nl->get_value('tracer_cnst_type')) {
-	 add_default($nl, 'tracer_cnst_type',    'ver'=>'fixed_ox');
-	 add_default($nl, 'tracer_cnst_cycle_yr','ver'=>'fixed_ox');
+    if ($chem eq 'trop_mam_oslo') {
+        add_default($nl, 'tracer_cnst_specifier', 'val'=>"'O3','OH','NO3','HO2'");
+        unless (defined $nl->get_value('tracer_cnst_type')) {
+	    add_default($nl, 'tracer_cnst_type',    'ver'=>'fixed_ox');
+	    add_default($nl, 'tracer_cnst_cycle_yr','ver'=>'fixed_ox');
+        }
+
+        my @files = ('tracer_cnst_datapath', 'tracer_cnst_file', 'tracer_cnst_filelist');
+        foreach my $file (@files) {
+            add_default($nl, $file, 'ver'=>'fixed_ox');
+        }
     }
 
-    my @files = ('tracer_cnst_datapath', 'tracer_cnst_file', 'tracer_cnst_filelist');
-    foreach my $file (@files) {
-        add_default($nl, $file, 'ver'=>'fixed_ox');
-    }
-
-    add_default($nl, 'fstrat_list', 'val'=>"' '");
+    if ($chem eq 'trop_mam_oslo') {add_default($nl, 'fstrat_list', 'val'=>"' '")};
     add_default($nl, 'flbc_list', 'val'=>"' '");
-    add_default($nl, 'xactive_prates', 'val'=>'.false.');
+    if ($chem eq 'trop_mam_oslo') {add_default($nl, 'xactive_prates', 'val'=>'.false.')};
 
     # Datasets
-    my @files = ('soil_erod_file',
-                 'xs_long_file', 'rsf_file', 'exo_coldens_file' );
-    foreach my $file (@files) {
-        add_default($nl, $file);
+    if ($chem eq 'trop_mam_oslo') {
+
+        my @files = ('soil_erod_file',
+                     'xs_long_file', 'rsf_file', 'exo_coldens_file' );
+        foreach my $file (@files) {
+            add_default($nl, $file);
+        }
+    }
+    if ($chem eq 'tropstrat_mam_oslo') {
+    
+        my @files = ('soil_erod_file',
+#                    'xs_long_file', 'rsf_file', 'exo_coldens_file' );
+#                    'xs_long_file', 'xs_short_file', 'xs_coef_file', 'rsf_file', 'exo_coldens_file' );
+                     'xs_long_file', 'xs_short_file', 'xs_coef_file', 'rsf_file' );
+        foreach my $file (@files) {
+            add_default($nl, $file);
+        }
     }
 }
 
@@ -3043,10 +3058,28 @@ if ($cfg->get('microphys') =~ /^mg/) {
     add_default($nl, 'micro_mg_berg_eff_factor');
     add_default($nl, 'micro_mg_autocon_nd_exp');
     add_default($nl, 'micro_mg_autocon_lwp_exp');
-
+    add_default($nl, 'nucleate_ice_incloud');
+    add_default($nl, 'nucleate_ice_strat');
+    add_default($nl, 'micro_mg_do_cldice');
+    add_default($nl, 'micro_mg_do_cldliq');
 
     # For CESM2, the decision was made to set micro_do_sb_physics to false
     add_default($nl, 'micro_do_sb_physics', 'val'=>'.false.');
+
+    # Check usage of random forests secondary ice production
+    add_default($nl, 'rafsip_on');
+    if ($nl->get_value('rafsip_on') =~ m/$TRUE/io) {
+        if ($nl->get_value('micro_mg_do_cldice') =~ m/$FALSE/io) {
+            # Generate an error since both of these variables would have to be
+            #    set manually for this condition
+            die "$ProgName - Error: Cannot set rafsip_on = .true. if micro_mg_do_cldice = .false.\n";
+        }
+        add_default($nl, 'forestfileALL');
+        add_default($nl, 'forestfileBRDS');
+        add_default($nl, 'forestfileBRHM');
+        add_default($nl, 'forestfileBR');
+        add_default($nl, 'forestfileBRwarm');
+    }
 }
 
 # Ice nucleation options
@@ -3300,6 +3333,11 @@ if ( length($nl->get_value('soil_erod_file'))>0 ) {
             # set scaling of lightning NOx production
 	    add_default($nl, 'lght_no_prd_factor' );
         add_default($nl, 'dust_active')
+        }
+        elsif ($chem =~ /tropstrat/) {
+            add_default($nl, 'dust_emis_fact');
+            # set scaling of lightning NOx production
+	    add_default($nl, 'lght_no_prd_factor' );
         }
         else {
             add_default($nl, 'dust_emis_fact');

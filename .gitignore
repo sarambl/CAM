@@ -12,9 +12,13 @@ src/physics/silhs
 # Ignore compiled python
 buildnmlc
 buildcppc
+*.pyc
 
 # Ignore editor temporaries and backups
 *~
 .#*
 \#*#
 *.swp
+
+# To avoid *.pyc files
+cime_config/__pycache__
