@@ -2928,7 +2928,9 @@ unless (defined $nl->get_value('dms_source_type')) {
 
 if ($chem =~ /_mam_oslo/) {
   add_default($nl, 'hetfrz_aer_scalfac');
-  add_default($nl, 'f_act_conv_coarse_dust')
+  add_default($nl, 'f_act_conv_coarse_dust');
+  add_default($nl, 'dst_density');
+  add_default($nl, 'dst_solfact')
 }
 
 if ($waccmx) {

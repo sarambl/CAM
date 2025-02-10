@@ -1400,9 +1400,14 @@
 <oslo_aero_n_so4_monolayers_age>3.0D0</oslo_aero_n_so4_monolayers_age>
 <oslo_aero_f_act_conv_interstitial>0.8D0</oslo_aero_f_act_conv_interstitial>
 
+<!-- dust density parameters-->
+<dst_density>2.60D3</dst_density>
 
 <!-- convective scavenging of aerosols -->
 <f_act_conv_coarse_dust>0.40D0</f_act_conv_coarse_dust>
+
+<!-- dust soulable fraction-->
+<dst_solfact>0.1D0</dst_solfact>
 
 <!-- sub-column switches for physics packages -->
 <use_subcol_microp>.false.</use_subcol_microp>

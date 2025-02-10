@@ -4997,19 +4997,19 @@ Default: set by build-namelist.
 </entry>
 
 <entry id="sol_factb_interstitial" type="real" category="cam_chem"
-       group="aerosol_nl" valid_values="" >
+       group="oslo_aero_share_nl" valid_values="" >
 Tuning for below cloud scavenging of interstitial modal aerosols.
 Default: set by build-namelist.
 </entry>
 
 <entry id="sol_factic_interstitial" type="real" category="cam_chem"
-       group="aerosol_nl" valid_values="" >
+       group="oslo_aero_share_nl" valid_values="" >
 Tuning for in-cloud scavenging of interstitial modal aerosols.
 Default: set by build-namelist.
 </entry>
 
 <entry id="sol_facti_cloud_borne" type="real" category="cam_chem"
-       group="aerosol_nl" valid_values="" >
+       group="oslo_aero_share_nl" valid_values="" >
 Tuning for in-cloud scavenging of cloud-borne modal aerosols.
 Default: set by build-namelist.
 </entry>
@@ -5018,6 +5018,18 @@ Default: set by build-namelist.
        group="oslo_aero_depos_nl" valid_values="" >
 Convetive scavenging coefficient for coarse dust
 Default: set by build-namelist.
+</entry>
+
+<entry id="dst_density" type="real" category="cam_chem"
+       group="oslo_aero_share_nl" valid_values="" >
+Density of dust aerosols.
+Default: 2600.0
+</entry>
+
+<entry id="dst_solfact" type="real" category="cam_chem"
+       group="oslo_aero_share_nl" valid_values="" >
+Solubility fraction of dust aerosols.
+Default: 0.1
 </entry>
 
 <entry id="oslo_aero_f_act_conv_interstitial" type="real" category="cam_chem"
