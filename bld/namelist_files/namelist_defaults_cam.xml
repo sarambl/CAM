@@ -1237,6 +1237,8 @@
 
 <microp_aero_wsub_min                  >  0.2D0    </microp_aero_wsub_min>
 <microp_aero_wsubi_min                  >  0.001D0    </microp_aero_wsubi_min>
+<microp_aero_wsub_scale               >  1.0D0    </microp_aero_wsub_scale>
+<microp_aero_wsubi_scale               >  1.0D0    </microp_aero_wsubi_scale>
 <micro_mg_do_cldice>.true.</micro_mg_do_cldice>
 <micro_mg_do_cldliq>.true.</micro_mg_do_cldliq>
 

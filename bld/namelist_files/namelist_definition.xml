@@ -2665,7 +2665,6 @@ Default: 2.47
     Scaling factor for nucleation.
     Default: 1
 </entry>
-<!-- smb: 2016-06-01: Added new namelist variables for aerosol microphysics -->
 
 <entry id="microp_aero_bulk_scale" type="real" category="microphys"
        group="microp_aero_nl" valid_values="" >
@@ -2683,6 +2682,18 @@ Default: 0.2 m s-1
        group="microp_aero_nl" valid_values="" >
 Minimum subgrid vertical velocity for ice droplets during aerosol activation with units of (m s-1).
 Default: 0.001 m s-1
+</entry>
+
+<entry id="microp_aero_wsub_scale" type="real" category="microphys"
+       group="microp_aero_nl" valid_values="" >
+Scaling factor for subgrid vertical velocity for aerosol activation.
+Default: 1.0
+</entry>
+
+<entry id="microp_aero_wsubi_scale" type="real" category="microphys"
+       group="microp_aero_nl" valid_values="" >
+Scaling factor for subgrid vertical velocity for ice during aerosol activation.
+Default: 1.0
 </entry>
 
 <entry id="use_hetfrz_classnuc" type="logical" category="microphys"

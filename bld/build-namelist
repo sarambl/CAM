@@ -3055,6 +3055,8 @@ if ($cfg->get('microphys') =~ /^mg/) {
     add_default($nl, 'micro_mg_adjust_cpt');
     add_default($nl, 'microp_aero_wsub_min');
     add_default($nl, 'microp_aero_wsubi_min');
+    add_default($nl, 'microp_aero_wsub_scale');
+    add_default($nl, 'microp_aero_wsubi_scale');
     add_default($nl, 'nucleate_ice_subgrid');
     add_default($nl, 'nucleate_ice_subgrid_strat');
     add_default($nl, 'nucleate_ice_use_troplev');
