@@ -207,6 +207,12 @@ When using NorESM-derived boundary conditions, we have opted to use the same lan
   </compset>
 
   <compset>
+    <alias>NFSSP245norpddmsbcsdyn</alias>
+    <lname>SSP245_CAM60%NORESM%NORPDDMSBC%SDYN_CLM50%BGC-CROP_CICE%PRES_DOCN%DOM_MOSART_SGLC_SWAV</lname>
+    <science_support grid="f19_f19"/>
+  </compset>
+
+  <compset>
     <alias>NFSSP245frc2norpibc_ghgonly</alias>
     <lname>SSP245_CAM60%NORESM%NORPIBC%GHGONLY%FRC2_CLM50%BGC-CROP_CICE%PRES_DOCN%DOM_MOSART_SGLC_SWAV</lname>
   </compset>

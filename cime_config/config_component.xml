@@ -374,7 +374,7 @@
       <value compset="SSP245_CAM60%NORESM%NORPIBC%NATONLY%FRC2"     >ssp245_cam6_noresm_natonly_frc2</value>
       <value compset="SSP245_CAM60%NORESM%NORPIBC%AERONLY%FRC2"     >ssp245_cam6_noresm_aeronly_frc2</value>
       <value compset="SSP245_CAM60%NORESM%NORPIBC%AEROXIDONLY%FRC2" >ssp245_cam6_noresm_aeroxidonly_frc2</value>
-
+      <value compset="SSP245_CAM60%NORESM%NORPDDMSBC"  >ssp245_cam6_noresm</value>
       <!-- NorESM emissions driven SSP compsets -->
       <value compset="SSP585_CAM60%NORESM%FRC2.*_BGC%BPRPDMS">ssp585esm_cam6_noresm_frc2</value>
       <value compset="SSP534_CAM60%NORESM%FRC2.*_BGC%BPRPDMS">ssp534esm_cam6_noresm_frc2</value>
@@ -462,6 +462,13 @@
       <value compset="HIST_CAM60%NORESM%NORPDDMSBC"> opom_cycle_year=2000 </value>
       <value compset="HIST_CAM60%NORESM%NORPDDMSBC"> dms_source_type='CYCLICAL' </value>
       <value compset="HIST_CAM60%NORESM%NORPDDMSBC"> opom_source_type='CYCLICAL' </value>
+      <!-- fSST AMIP type 2015-2019 SSP245-->
+      <value compset="SSP245_CAM60%NORESM%NORPDDMSBC"> ocean_filename='dms-hamocc-dow-taylor_chlor_a-lanaclim_NHIST_f19_tn14_20190625_1985-2014_cycle_version20190726.nc' </value>
+      <value compset="SSP245_CAM60%NORESM%NORPDDMSBC"> dms_cycle_year=2000 </value>
+      <value compset="SSP245_CAM60%NORESM%NORPDDMSBC"> opom_cycle_year=2000 </value>
+      <value compset="SSP245_CAM60%NORESM%NORPDDMSBC"> dms_source_type='CYCLICAL' </value>
+      <value compset="SSP245_CAM60%NORESM%NORPDDMSBC"> opom_source_type='CYCLICAL' </value>
+
       <!-- fSST 4xCO2-->
       <value compset="1850_CAM60%NORESM%NORBC%4xCO2"> co2vmr=1138.8e-6 </value>
       <value compset="1850_CAM60%NORESM%NORBC%FRC2%4xCO2"> co2vmr=1138.8e-6 </value>
